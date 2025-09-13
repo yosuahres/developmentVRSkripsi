@@ -31,19 +31,17 @@ final class CaseGroupLoader {
                         return nil
                     }
 
-                    var loadedEntity: Entity? = nil
-                    
                     do {
-                        loadedEntity = try await Entity(contentsOf: usdzURL)
+                        let usdzEntity = try await Entity(contentsOf: usdzURL)
+                        return LoadedCaseGroup(
+                            group: caseGroup,
+                            usdzEntity: usdzEntity,
+                            usdzURL: usdzURL
+                        )
                     } catch {
-                        print("Failed to load USDZ model for \(caseGroup.usdzModelName): \(error). Proceeding with nil entity.")
+                        print("Failed to load USDZ model for \(caseGroup.usdzModelName): \(error)")
+                        return nil
                     }
-
-                    return LoadedCaseGroup(
-                        group: caseGroup,
-                        usdzEntity: loadedEntity,
-                        usdzURL: usdzURL
-                    )
                 }
             }
 

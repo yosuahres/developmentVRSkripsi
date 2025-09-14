@@ -60,7 +60,7 @@ struct HomeView: View {
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .scaleEffect(0.8)
-                                .offset(y: -50)
+                                .offset(y: -200) // Raise the model to head level
                         } placeholder: {
                             ProgressView()
                         }
@@ -77,7 +77,7 @@ struct HomeView: View {
         .toolbar {
             ToolbarItem(placement: .bottomOrnament) {
                 VStack {
-                    if !appState.isImmersiveSpaceOpened {
+                    if appState.immersiveSpaceState == .closed {
                         if let selectedCaseGroupId, let selectedObject = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroupId}) {
                             Button("Open Immersive Space") {
                                 appState.selectedCaseGroup = selectedObject

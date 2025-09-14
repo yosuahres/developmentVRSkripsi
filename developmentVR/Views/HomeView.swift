@@ -9,11 +9,12 @@ import SwiftUI
 import RealityKit
 
 struct HomeView: View {
-    @Bindable var appState: AppState
+    @ObservedObject var appState: AppState
     let immersiveSpaceIdentifier: String
     
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
+    @Environment(\.dismiss) private var dismiss
     
     @State var selectedCaseGroupId: UUID? 
     @State private var searchText: String = ""
@@ -84,6 +85,7 @@ struct HomeView: View {
                                     switch await openImmersiveSpace(id: immersiveSpaceIdentifier) {
                                     case .opened:
                                         appState.immersiveSpaceState = .open
+                                        dismiss()
                                     case .error:
                                         print("An error occurred when trying to open the immersive space \(immersiveSpaceIdentifier)")
                                     case .userCancelled:

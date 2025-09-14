@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		60E865E32E7534D60052A618 /* RealityKitContent in Frameworks */ = {isa = PBXBuildFile; productRef = 60E865E22E7534D60052A618 /* RealityKitContent */; };
+		60E866A12E75AF7C0052A618 /* RealityKitContent in Frameworks */ = {isa = PBXBuildFile; productRef = 60E866A02E75AF7C0052A618 /* RealityKitContent */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -18,12 +19,21 @@
 			remoteGlobalIDString = 60E865DC2E7534D60052A618;
 			remoteInfo = developmentVR;
 		};
+		60E866B42E75AF7F0052A618 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 60E865D52E7534D60052A618 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 60E8669D2E75AF7C0052A618;
+			remoteInfo = devVRPlan;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		60E865DD2E7534D60052A618 /* developmentVR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = developmentVR.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		60E865E12E7534D60052A618 /* RealityKitContent */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = RealityKitContent; sourceTree = "<group>"; };
 		60E865F52E7534DA0052A618 /* developmentVRTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = developmentVRTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		60E8669E2E75AF7C0052A618 /* devVRPlan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = devVRPlan.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		60E866B32E75AF7F0052A618 /* devVRPlanTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = devVRPlanTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -50,6 +60,16 @@
 			path = developmentVRTests;
 			sourceTree = "<group>";
 		};
+		60E8669F2E75AF7C0052A618 /* devVRPlan */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = devVRPlan;
+			sourceTree = "<group>";
+		};
+		60E866B62E75AF7F0052A618 /* devVRPlanTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = devVRPlanTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +88,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		60E8669B2E75AF7C0052A618 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				60E866A12E75AF7C0052A618 /* RealityKitContent in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60E866B02E75AF7F0052A618 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -77,6 +112,8 @@
 				60E865DF2E7534D60052A618 /* developmentVR */,
 				60E865E02E7534D60052A618 /* Packages */,
 				60E865F82E7534DA0052A618 /* developmentVRTests */,
+				60E8669F2E75AF7C0052A618 /* devVRPlan */,
+				60E866B62E75AF7F0052A618 /* devVRPlanTests */,
 				60E865DE2E7534D60052A618 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -86,6 +123,8 @@
 			children = (
 				60E865DD2E7534D60052A618 /* developmentVR.app */,
 				60E865F52E7534DA0052A618 /* developmentVRTests.xctest */,
+				60E8669E2E75AF7C0052A618 /* devVRPlan.app */,
+				60E866B32E75AF7F0052A618 /* devVRPlanTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -147,6 +186,52 @@
 			productReference = 60E865F52E7534DA0052A618 /* developmentVRTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		60E8669D2E75AF7C0052A618 /* devVRPlan */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 60E866BE2E75AF7F0052A618 /* Build configuration list for PBXNativeTarget "devVRPlan" */;
+			buildPhases = (
+				60E8669A2E75AF7C0052A618 /* Sources */,
+				60E8669B2E75AF7C0052A618 /* Frameworks */,
+				60E8669C2E75AF7C0052A618 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				60E8669F2E75AF7C0052A618 /* devVRPlan */,
+			);
+			name = devVRPlan;
+			packageProductDependencies = (
+				60E866A02E75AF7C0052A618 /* RealityKitContent */,
+			);
+			productName = devVRPlan;
+			productReference = 60E8669E2E75AF7C0052A618 /* devVRPlan.app */;
+			productType = "com.apple.product-type.application";
+		};
+		60E866B22E75AF7F0052A618 /* devVRPlanTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 60E866BF2E75AF7F0052A618 /* Build configuration list for PBXNativeTarget "devVRPlanTests" */;
+			buildPhases = (
+				60E866AF2E75AF7F0052A618 /* Sources */,
+				60E866B02E75AF7F0052A618 /* Frameworks */,
+				60E866B12E75AF7F0052A618 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				60E866B52E75AF7F0052A618 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				60E866B62E75AF7F0052A618 /* devVRPlanTests */,
+			);
+			name = devVRPlanTests;
+			packageProductDependencies = (
+			);
+			productName = devVRPlanTests;
+			productReference = 60E866B32E75AF7F0052A618 /* devVRPlanTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -163,6 +248,13 @@
 					60E865F42E7534DA0052A618 = {
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = 60E865DC2E7534D60052A618;
+					};
+					60E8669D2E75AF7C0052A618 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					60E866B22E75AF7F0052A618 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 60E8669D2E75AF7C0052A618;
 					};
 				};
 			};
@@ -182,6 +274,8 @@
 			targets = (
 				60E865DC2E7534D60052A618 /* developmentVR */,
 				60E865F42E7534DA0052A618 /* developmentVRTests */,
+				60E8669D2E75AF7C0052A618 /* devVRPlan */,
+				60E866B22E75AF7F0052A618 /* devVRPlanTests */,
 			);
 		};
 /* End PBXProject section */
@@ -195,6 +289,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		60E865F32E7534DA0052A618 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60E8669C2E75AF7C0052A618 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60E866B12E75AF7F0052A618 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -218,6 +326,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		60E8669A2E75AF7C0052A618 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60E866AF2E75AF7F0052A618 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -225,6 +347,11 @@
 			isa = PBXTargetDependency;
 			target = 60E865DC2E7534D60052A618 /* developmentVR */;
 			targetProxy = 60E865F62E7534DA0052A618 /* PBXContainerItemProxy */;
+		};
+		60E866B52E75AF7F0052A618 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 60E8669D2E75AF7C0052A618 /* devVRPlan */;
+			targetProxy = 60E866B42E75AF7F0052A618 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -434,6 +561,92 @@
 			};
 			name = Release;
 		};
+		60E866B92E75AF7F0052A618 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "$(TARGET_NAME)/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = hares.devVRPlan;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 7;
+			};
+			name = Debug;
+		};
+		60E866BA2E75AF7F0052A618 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "$(TARGET_NAME)/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = hares.devVRPlan;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 7;
+			};
+			name = Release;
+		};
+		60E866BB2E75AF7F0052A618 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = hares.devVRPlanTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 7;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/devVRPlan.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/devVRPlan";
+				XROS_DEPLOYMENT_TARGET = 2.5;
+			};
+			name = Debug;
+		};
+		60E866BC2E75AF7F0052A618 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = hares.devVRPlanTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 7;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/devVRPlan.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/devVRPlan";
+				XROS_DEPLOYMENT_TARGET = 2.5;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -464,10 +677,32 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		60E866BE2E75AF7F0052A618 /* Build configuration list for PBXNativeTarget "devVRPlan" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60E866B92E75AF7F0052A618 /* Debug */,
+				60E866BA2E75AF7F0052A618 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		60E866BF2E75AF7F0052A618 /* Build configuration list for PBXNativeTarget "devVRPlanTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60E866BB2E75AF7F0052A618 /* Debug */,
+				60E866BC2E75AF7F0052A618 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		60E865E22E7534D60052A618 /* RealityKitContent */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = RealityKitContent;
+		};
+		60E866A02E75AF7C0052A618 /* RealityKitContent */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = RealityKitContent;
 		};

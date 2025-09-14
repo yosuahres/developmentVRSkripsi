@@ -14,7 +14,6 @@ struct HomeView: View {
     
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
-    @Environment(\.dismiss) private var dismiss
     
     @State var selectedCaseGroupId: UUID? 
     @State private var searchText: String = ""
@@ -60,7 +59,7 @@ struct HomeView: View {
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .scaleEffect(0.8)
-                                .offset(y: -200) // Raise the model to head level
+//                                .offset(y: -50)
                         } placeholder: {
                             ProgressView()
                         }
@@ -85,7 +84,7 @@ struct HomeView: View {
                                     switch await openImmersiveSpace(id: immersiveSpaceIdentifier) {
                                     case .opened:
                                         appState.immersiveSpaceState = .open
-                                        dismiss()
+                                        await dismissImmersiveSpace()
                                     case .error:
                                         print("An error occurred when trying to open the immersive space \(immersiveSpaceIdentifier)")
                                     case .userCancelled:
@@ -96,13 +95,6 @@ struct HomeView: View {
                                 }
                             }
                         }
-                    } else {
-                        Button("Close Immersive Space") {
-                            Task {
-                                await dismissImmersiveSpace()
-                                appState.didLeaveImmersiveSpace()
-                            }
-                        }
                     }
                 }
             }
@@ -110,6 +102,6 @@ struct HomeView: View {
     }
 }
 
-#Preview {
-    HomeView(appState: AppState(), immersiveSpaceIdentifier: "ImmersiveSpace")
-}
+//#Preview {
+//    HomeView(appState: AppState(), immersiveSpaceIdentifier: "ImmersiveSpace")
+//}

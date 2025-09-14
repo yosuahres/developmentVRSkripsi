@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import RealityKit // Required for Entity
+import RealityKit 
 
 struct CaseGroup: Identifiable, Hashable {
     let id = UUID()
@@ -19,5 +19,5 @@ struct LoadedCaseGroup: Identifiable {
     let id = UUID()
     let group: CaseGroup
     let usdzEntity: Entity?
-    let usdzURL: URL? // Store the URL for direct use in Model3D
+    let usdzURL: URL? 
 }

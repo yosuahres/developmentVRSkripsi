@@ -14,13 +14,11 @@ struct OstoetomyPlanView: View {
                     content.add(modelEntity)
                 } catch {
                     print("Error loading USDZ model from URL: \(error)")
-                    // Fallback to Immersive.usda if USDZ fails to load
                     if let scene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
                         content.add(scene)
                     }
                 }
             } else {
-                // Load the Immersive.usda scene from RealityKitContent as a fallback
                 if let scene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
                     content.add(scene)
                 }

@@ -1,3 +1,10 @@
+//
+//  OstoetomyPlanView.swift
+//  developmentVR
+//
+//  Created by HARES on 9/13/25.
+//
+
 import SwiftUI
 import RealityKit
 import RealityKitContent
@@ -10,8 +17,9 @@ struct OstoetomyPlanView: View {
             if let selectedCaseGroup = appState.selectedCaseGroup,
                let usdzURL = selectedCaseGroup.usdzURL {
                 do {
-                    let modelEntity = try await ModelEntity(contentsOf: usdzURL)
-                    content.add(modelEntity)
+                        let modelEntity = try await ModelEntity(contentsOf: usdzURL)
+                        modelEntity.position.y = 0.5 
+                        content.add(modelEntity)
                 } catch {
                     print("Error loading USDZ model from URL: \(error)")
                     if let scene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {

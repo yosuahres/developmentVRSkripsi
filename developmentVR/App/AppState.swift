@@ -18,7 +18,7 @@ class AppState: ObservableObject {
         case open
     }
     
-    var immersiveSpaceState = ImmersiveSpaceState.closed
+    @Published var immersiveSpaceState = ImmersiveSpaceState.closed
     
     var isImmersiveSpaceOpened: Bool {
         immersiveSpaceState == .open

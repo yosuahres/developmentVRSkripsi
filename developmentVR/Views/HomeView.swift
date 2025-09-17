@@ -31,80 +31,84 @@ struct HomeView: View {
     
     var body: some View {
         Group {
-            NavigationSplitView {
-                VStack {
-                    List(selection: $selectedCaseGroupId) {
-                        ForEach(filteredCaseGroups, id: \.id) { caseGroup in
-                            HStack(spacing: 8) {
-                                Image("glyph")
-                                    .resizable()
-                                    .frame(width: 50, height: 50)
-                                VStack(alignment: .leading) {
-                                    Text(caseGroup.group.name)
-                                    Text(caseGroup.group.description)
-                                        .lineLimit(1)
-                                        .foregroundStyle(.secondary)
+            if appState.isImmersiveSpaceOpened {
+                ImmersiveControlsView(appState: appState)
+                    .transition(.opacity)
+                    .frame(width: 300, height: 400)
+            } else {
+                NavigationSplitView {
+                    VStack {
+                        List(selection: $selectedCaseGroupId) {
+                            ForEach(filteredCaseGroups, id: \.id) { caseGroup in
+                                HStack(spacing: 8) {
+                                    Image("glyph")
+                                        .resizable()
+                                        .frame(width: 50, height: 50)
+                                    VStack(alignment: .leading) {
+                                        Text(caseGroup.group.name)
+                                        Text(caseGroup.group.description)
+                                            .lineLimit(1)
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
                             }
                         }
+                        .navigationTitle("Session")
+                        .searchable(text: $searchText, prompt: "Search groups")
                     }
-                    .navigationTitle("Session")
-                    .searchable(text: $searchText, prompt: "Search groups")
-                }
-            } detail: {
-                if let selectedObject = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroupId}) {
-                    if let usdzURL = selectedObject.usdzURL {
-                        Model3D(url: usdzURL) { model in
-                            model
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .scaleEffect(0.5)
-//                                .offset(y: -50)
-                        } placeholder: {
-                            ProgressView()
+                } detail: {
+                    if let selectedObject = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroupId}) {
+                        if let usdzURL = selectedObject.usdzURL {
+                            Model3D(url: usdzURL) { model in
+                                model
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .scaleEffect(0.5)
+    //                                .offset(y: -50)
+                            } placeholder: {
+                                ProgressView()
+                            }
+                        } else {
+                            Text("No preview available")
                         }
                     } else {
-                        Text("No preview available")
+                        Text("No object selected")
                     }
-                } else {
-                    Text("No object selected")
                 }
+                .frame(width: 800, height: 500)
             }
-            .frame(minWidth: 400, minHeight: 300)
         }
         .glassBackgroundEffect()
-        .toolbar {
-            ToolbarItem(placement: .bottomOrnament) {
-                VStack {
-                    if appState.immersiveSpaceState == .closed {
-                        if let selectedCaseGroupId, let selectedObject = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroupId}) {
-                            Button("Open Immersive Space") {
-                                appState.selectedCaseGroup = selectedObject
-                                appState.immersiveSpaceState = .inTransition
-                                Task {
-                                    switch await openImmersiveSpace(id: immersiveSpaceIdentifier) {
-                                    case .opened:
-                                        appState.immersiveSpaceState = .open
-                                    case .error:
-                                        print("An error occurred when trying to open the immersive space \(immersiveSpaceIdentifier)")
-                                        appState.immersiveSpaceState = .closed
-                                    case .userCancelled:
-                                        print("The user declined opening immersive space \(immersiveSpaceIdentifier)")
-                                        appState.immersiveSpaceState = .closed
-                                    @unknown default:
-                                        appState.immersiveSpaceState = .closed
-                                        break
+                .toolbar {
+                    ToolbarItem(placement: .bottomOrnament) {
+                        VStack {
+                            if appState.immersiveSpaceState == .closed {
+                                if let selectedCaseGroupId, let selectedObject = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroupId}) {
+                                    Button("Open Immersive Space") {
+                                        appState.selectedCaseGroup = selectedObject
+                                        appState.immersiveSpaceState = .inTransition
+                                        Task {
+                                            switch await openImmersiveSpace(id: immersiveSpaceIdentifier) {
+                                            case .opened:
+                                                appState.immersiveSpaceState = .open
+                                            case .error:
+                                                print("An error occurred when trying to open the immersive space \(immersiveSpaceIdentifier)")
+                                                appState.immersiveSpaceState = .closed
+                                            case .userCancelled:
+                                                print("The user declined opening immersive space \(immersiveSpaceIdentifier)")
+                                                appState.immersiveSpaceState = .closed
+                                            @unknown default:
+                                                appState.immersiveSpaceState = .closed
+                                                break
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
-        }
     }
-}
-
-//#Preview {
+}//#Preview {
 //    HomeView(appState: AppState(), immersiveSpaceIdentifier: "ImmersiveSpace")
 //}

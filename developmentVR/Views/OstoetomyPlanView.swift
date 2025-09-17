@@ -11,48 +11,13 @@ import RealityKitContent
 
 struct OstoetomyPlanView: View {
     @ObservedObject var appState: AppState
-    @State private var modelEntity: ModelEntity?      
+    @State private var modelEntity: ModelEntity?
     @State private var lastDragTranslation: CGSize = .zero
-    @State private var currentAngle: Float = 0        
-    @State private var currentScale: Float = 0.5       
+    @State private var currentAngle: Float = 0
+    @State private var currentScale: Float = 0.1      
 
     var body: some View {
-        let dragGesture = DragGesture()
-            .targetedToAnyEntity()
-            .onChanged { drag in
-                guard let model = modelEntity else { return }
-                let dx = Float(drag.translation.width - lastDragTranslation.width) * 0.002
-                let dy = Float(drag.translation.height - lastDragTranslation.height) * 0.002
-                let dz = Float(drag.translation.height - lastDragTranslation.height) * 0.002
-                model.position += [dx, dy, dz]
-                lastDragTranslation = drag.translation
-            }
-            .onEnded { _ in
-                lastDragTranslation = .zero
-            }
-
-        let rotationGesture = RotationGesture()
-            .onChanged { value in
-                guard let model = modelEntity else { return }
-                model.transform.rotation = simd_quatf(angle: currentAngle + Float(value.radians), axis: [0, 1, 0])
-            }
-            .onEnded { value in
-                currentAngle += Float(value.radians)
-            }
-
-        /*
-        // pinch to scale function
-        let pinchGesture = MagnificationGesture()
-            .onChanged { value in
-                guard let model = modelEntity else { return }
-                model.scale = [currentScale * Float(value), currentScale * Float(value), currentScale * Float(value)]
-            }
-            .onEnded { value in
-                currentScale *= Float(value)
-            }
-        */
-
-        return RealityView { content in
+        RealityView { content in
             if let selectedCaseGroup = appState.selectedCaseGroup,
                let usdzURL = selectedCaseGroup.usdzURL {
                 do {
@@ -83,8 +48,8 @@ struct OstoetomyPlanView: View {
                 }
             }
         }
-        .gesture(dragGesture)
-        .simultaneousGesture(rotationGesture)
-        //.simultaneousGesture(pinchGesture) 
+        .gesture(Gestures.dragGesture(modelEntity: $modelEntity, lastTranslation: $lastDragTranslation))
+        .simultaneousGesture(Gestures.rotationGesture(modelEntity: $modelEntity, currentAngle: $currentAngle))
+        //.simultaneousGesture(ModelGestures.pinchGesture(modelEntity: $modelEntity, currentScale: $currentScale)) // disable pinch
     }
 }

@@ -7,22 +7,21 @@
 
 import Foundation
 import RealityKit
-import ARKit // Add ARKit back if AppModel needs it for ARKitSession.isSupported
+import ARKit 
 
 @MainActor
 @Observable
 final class CaseGroupLoader {
-    private(set) var loadedCaseGroups = [LoadedCaseGroup]() // Renamed property
+    private(set) var loadedCaseGroups = [LoadedCaseGroup]() 
     private var didStartLoading = false
 
-    func loadCaseGroups(_ caseGroups: [CaseGroup]) async { // Renamed parameter
+    func loadCaseGroups(_ caseGroups: [CaseGroup]) async { 
         guard !didStartLoading else { return }
         didStartLoading = true
 
         await withTaskGroup(of: LoadedCaseGroup?.self) { group in
             for caseGroup in caseGroups {
                 group.addTask {
-                    // Directly load USDZ model
                     guard let usdzURL = Bundle.main.url(
                         forResource: caseGroup.usdzModelName,
                         withExtension: "usdz" // Changed extension to usdz
@@ -45,7 +44,6 @@ final class CaseGroupLoader {
                 }
             }
 
-            // Collect results
             for await result in group {
                 if let loadedGroup = result {
                     loadedCaseGroups.append(loadedGroup)
@@ -53,7 +51,6 @@ final class CaseGroupLoader {
             }
         }
 
-        // Sort by name
         loadedCaseGroups.sort { $0.group.name < $1.group.name }
     }
 }

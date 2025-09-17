@@ -11,7 +11,7 @@ import RealityKitContent
 
 struct OstoetomyPlanView: View {
     @ObservedObject var appState: AppState
-    @State private var modelEntity: ModelEntity?      
+    @State private var modelEntity: ModelEntity?      // keep reference
     @State private var lastDragTranslation: CGSize = .zero
 
     var body: some View {
@@ -21,7 +21,7 @@ struct OstoetomyPlanView: View {
                 do {
                     let model = try await ModelEntity(contentsOf: usdzURL)
 
-                    // floating anchor
+                    // create a floating anchor at x=0, y=1.5, z=0
                     let anchor = AnchorEntity(world: [0, 1.5, 0])
                     anchor.addChild(model)
 
@@ -48,11 +48,11 @@ struct OstoetomyPlanView: View {
                 .targetedToAnyEntity()
                 .onChanged { drag in
                     guard let model = modelEntity else { return }
-                    // map drag to x/z movement in 3D
+                    // map drag to 3D movement
                     let dx = Float(drag.translation.width - lastDragTranslation.width) * 0.002
+                    let dy = Float(drag.translation.height - lastDragTranslation.height) * 0.002
                     let dz = Float(drag.translation.height - lastDragTranslation.height) * 0.002
-                    model.position.x += dx
-                    model.position.z += dz
+                    model.position += [dx, dy, dz]
                     lastDragTranslation = drag.translation
                 }
                 .onEnded { _ in

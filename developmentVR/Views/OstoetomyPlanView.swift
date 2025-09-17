@@ -11,7 +11,7 @@ import RealityKitContent
 
 struct OstoetomyPlanView: View {
     @ObservedObject var appState: AppState
-    @State private var modelEntity: ModelEntity?     
+    @State private var modelEntity: ModelEntity?      
     @State private var lastDragTranslation: CGSize = .zero
 
     var body: some View {
@@ -20,13 +20,16 @@ struct OstoetomyPlanView: View {
                let usdzURL = selectedCaseGroup.usdzURL {
                 do {
                     let model = try await ModelEntity(contentsOf: usdzURL)
-                    model.position.y = 0.5
+
+                    // floating anchor
+                    let anchor = AnchorEntity(world: [0, 1.5, 0])
+                    anchor.addChild(model)
 
                     // enable interactions
                     model.generateCollisionShapes(recursive: true)
                     model.components.set(InputTargetComponent(allowedInputTypes: .all))
 
-                    content.add(model)
+                    content.add(anchor)
                     modelEntity = model
                 } catch {
                     print("Error loading USDZ model from URL: \(error)")

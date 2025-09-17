@@ -11,34 +11,50 @@ import RealityKitContent
 
 struct OstoetomyPlanView: View {
     @ObservedObject var appState: AppState
+    @State private var modelEntity: ModelEntity?     
+    @State private var lastDragTranslation: CGSize = .zero
 
     var body: some View {
         RealityView { content in
             if let selectedCaseGroup = appState.selectedCaseGroup,
                let usdzURL = selectedCaseGroup.usdzURL {
                 do {
-                    let modelEntity = try await ModelEntity(contentsOf: usdzURL)
+                    let model = try await ModelEntity(contentsOf: usdzURL)
+                    model.position.y = 0.5
 
-                    // static positioning
-                    modelEntity.position = [0, 0.5, 0]
+                    // enable interactions
+                    model.generateCollisionShapes(recursive: true)
+                    model.components.set(InputTargetComponent(allowedInputTypes: .all))
 
-                    // movable positioning
-                    modelEntity.generateCollisionShapes(recursive: true)
-                    modelEntity.components.set(InputTargetComponent())
-                    modelEntity.enableGestures([.translation, .rotation, .scale])
-
-                    content.add(modelEntity)
+                    content.add(model)
+                    modelEntity = model
                 } catch {
                     print("Error loading USDZ model from URL: \(error)")
-                    if let scene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
-                        content.add(scene)
+                    if let fallbackScene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
+                        content.add(fallbackScene)
                     }
                 }
             } else {
-                if let scene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
-                    content.add(scene)
+                if let fallbackScene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
+                    content.add(fallbackScene)
                 }
             }
         }
+        .gesture(
+            DragGesture()
+                .targetedToAnyEntity()
+                .onChanged { drag in
+                    guard let model = modelEntity else { return }
+                    // map drag to x/z movement in 3D
+                    let dx = Float(drag.translation.width - lastDragTranslation.width) * 0.002
+                    let dz = Float(drag.translation.height - lastDragTranslation.height) * 0.002
+                    model.position.x += dx
+                    model.position.z += dz
+                    lastDragTranslation = drag.translation
+                }
+                .onEnded { _ in
+                    lastDragTranslation = .zero
+                }
+        )
     }
 }

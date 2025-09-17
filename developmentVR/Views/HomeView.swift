@@ -58,7 +58,7 @@ struct HomeView: View {
                             model
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .scaleEffect(0.8)
+                                .scaleEffect(0.5)
 //                                .offset(y: -50)
                         } placeholder: {
                             ProgressView()
@@ -80,16 +80,19 @@ struct HomeView: View {
                         if let selectedCaseGroupId, let selectedObject = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroupId}) {
                             Button("Open Immersive Space") {
                                 appState.selectedCaseGroup = selectedObject
+                                appState.immersiveSpaceState = .inTransition
                                 Task {
                                     switch await openImmersiveSpace(id: immersiveSpaceIdentifier) {
                                     case .opened:
                                         appState.immersiveSpaceState = .open
-                                        await dismissImmersiveSpace()
                                     case .error:
                                         print("An error occurred when trying to open the immersive space \(immersiveSpaceIdentifier)")
+                                        appState.immersiveSpaceState = .closed
                                     case .userCancelled:
                                         print("The user declined opening immersive space \(immersiveSpaceIdentifier)")
+                                        appState.immersiveSpaceState = .closed
                                     @unknown default:
+                                        appState.immersiveSpaceState = .closed
                                         break
                                     }
                                 }

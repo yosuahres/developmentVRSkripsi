@@ -14,6 +14,9 @@ struct HomeView: View {
     
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
+
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
     
     @State var selectedCaseGroupId: UUID? 
     @State private var searchText: String = ""
@@ -28,8 +31,6 @@ struct HomeView: View {
             }
         }
     }
-    
-    @Environment(\.openWindow) private var openWindow
     
     var body: some View {
         NavigationSplitView {
@@ -60,7 +61,7 @@ struct HomeView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .scaleEffect(0.5)
-//                                .offset(y: -50)
+                            .offset(y: -50)
                     } placeholder: {
                         ProgressView()
                     }
@@ -85,6 +86,7 @@ struct HomeView: View {
                                     case .opened:
                                         appState.immersiveSpaceState = .open
                                         openWindow(id: "controls")
+                                        dismissWindow(id: "main")
                                     case .error:
                                         print("An error occurred when trying to open the immersive space \(immersiveSpaceIdentifier)")
                                         appState.immersiveSpaceState = .closed

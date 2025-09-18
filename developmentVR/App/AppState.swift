@@ -60,8 +60,6 @@ struct developmentVRApp: App {
         }
         .windowStyle(.volumetric)
         .defaultSize(width: 300, height: 400)
-        .windowResizability(.none)
-        .defaultPosition(.init(x: 1.0, y: 1.5, z: 0)) // Position to the right of the model
 
         ImmersiveSpace(id: appState.immersiveSpaceID) {
             OstoetomyPlanView(appState: appState)

@@ -14,9 +14,15 @@ struct ImmersiveControlsView: View {
     
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
-    @State private var isMainWindowVisible = true
+    @State private var isMainWindowVisible = false
     
     var body: some View {
+        RealityView { content in
+            let anchor = AnchorEntity(.head)
+            anchor.position = [4, 0, 4] 
+            content.add(anchor)
+        }
+        
         VStack(spacing: 20) {
             if let selectedCase = appState.selectedCaseGroup {
                 Text("Currently Viewing:")

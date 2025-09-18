@@ -13,8 +13,8 @@ struct OstoetomyPlanView: View {
     @ObservedObject var appState: AppState
     @State private var modelEntity: ModelEntity?
     @State private var lastDragTranslation: CGSize = .zero
-    @State private var currentAngle: Float = -90 //ngadep samping
-    // @State private var currentScale: Float = 0.1      
+    @State private var currentAngle: Float = 0
+    @State private var currentScale: Float = 0.001
 
     var body: some View {
         RealityView { content in
@@ -24,7 +24,7 @@ struct OstoetomyPlanView: View {
                     let model = try await ModelEntity(contentsOf: usdzURL)
 
                     // initial scale
-                    // model.scale = [currentScale, currentScale, currentScale]
+                    model.scale = [currentScale, currentScale, currentScale]
 
                     // floating anchor
                     let anchor = AnchorEntity(world: [0, 1.5, 0])

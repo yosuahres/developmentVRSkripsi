@@ -12,6 +12,10 @@ struct ImmersiveControlsView: View {
     @ObservedObject var appState: AppState
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
+    @State private var isMainWindowVisible = true
+    
     var body: some View {
         VStack(spacing: 20) {
             if let selectedCase = appState.selectedCaseGroup {
@@ -31,12 +35,24 @@ struct ImmersiveControlsView: View {
                 Text("• Rotate gesture to rotate")
                     .padding(.vertical, 2)
                 
+                Divider()
+                
+                Toggle("Show Main Window", isOn: $isMainWindowVisible)
+                    .onChange(of: isMainWindowVisible) { _, newValue in
+                        if newValue {
+                            openWindow(id: "main")
+                        } else {
+                            dismissWindow(id: "main")
+                        }
+                    }
+                
                 Spacer()
                 
                 Button("Close Immersive Space") {
                     Task {
                         await dismissImmersiveSpace()
                         appState.immersiveSpaceState = .closed
+                        openWindow(id: "main")
                     }
                 }
                 .buttonStyle(.bordered)

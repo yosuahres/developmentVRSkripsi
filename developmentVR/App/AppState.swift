@@ -19,6 +19,7 @@ class AppState: ObservableObject {
     }
     
     @Published var immersiveSpaceState = ImmersiveSpaceState.closed
+    @Published var isControlWindowOpened = false
     
     var isImmersiveSpaceOpened: Bool {
         immersiveSpaceState == .open
@@ -49,17 +50,26 @@ struct developmentVRApp: App {
     @StateObject private var appState = AppState()
 
     var body: some SwiftUI.Scene {
-        WindowGroup {
+        WindowGroup(id: "main") {
             HomeView(appState: appState, immersiveSpaceIdentifier: appState.immersiveSpaceID)
         }
+        .windowStyle(.plain)
+        
+        WindowGroup(id: "controls") {
+            ImmersiveControlsView(appState: appState)
+        }
+        .windowStyle(.volumetric)
+        .defaultSize(width: 300, height: 400)
 
         ImmersiveSpace(id: appState.immersiveSpaceID) {
             OstoetomyPlanView(appState: appState)
                 .onAppear {
                     appState.immersiveSpaceState = .open
+                    appState.isControlWindowOpened = true
                 }
                 .onDisappear {
                     appState.immersiveSpaceState = .closed
+                    appState.isControlWindowOpened = false
                 }
         }
         .immersionStyle(selection: .constant(.full), in: .full)

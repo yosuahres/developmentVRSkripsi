@@ -13,7 +13,7 @@ struct OstoetomyPlanView: View {
     @ObservedObject var appState: AppState
     @State private var modelEntity: ModelEntity?
     @State private var lastDragTranslation: CGSize = .zero
-    @State private var currentAngle: Float = 90 //ngadep samping
+    @State private var currentAngle: Float = -90 //ngadep samping
     // @State private var currentScale: Float = 0.1      
 
     var body: some View {

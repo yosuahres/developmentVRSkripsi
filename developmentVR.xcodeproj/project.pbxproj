@@ -60,16 +60,6 @@
 			path = developmentVRTests;
 			sourceTree = "<group>";
 		};
-		60E8669F2E75AF7C0052A618 /* devVRPlan */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = devVRPlan;
-			sourceTree = "<group>";
-		};
-		60E866B62E75AF7F0052A618 /* devVRPlanTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = devVRPlanTests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,8 +102,6 @@
 				60E865DF2E7534D60052A618 /* developmentVR */,
 				60E865E02E7534D60052A618 /* Packages */,
 				60E865F82E7534DA0052A618 /* developmentVRTests */,
-				60E8669F2E75AF7C0052A618 /* devVRPlan */,
-				60E866B62E75AF7F0052A618 /* devVRPlanTests */,
 				60E865DE2E7534D60052A618 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -198,9 +186,6 @@
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				60E8669F2E75AF7C0052A618 /* devVRPlan */,
-			);
 			name = devVRPlan;
 			packageProductDependencies = (
 				60E866A02E75AF7C0052A618 /* RealityKitContent */,
@@ -221,9 +206,6 @@
 			);
 			dependencies = (
 				60E866B52E75AF7F0052A618 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				60E866B62E75AF7F0052A618 /* devVRPlanTests */,
 			);
 			name = devVRPlanTests;
 			packageProductDependencies = (

@@ -19,7 +19,7 @@ struct ImmersiveControlsView: View {
     var body: some View {
         RealityView { content in
             let anchor = AnchorEntity(.head)
-            anchor.position = [4, 0, 4] 
+            anchor.position = [0, 0, 0] 
             content.add(anchor)
         }
         
@@ -65,7 +65,7 @@ struct ImmersiveControlsView: View {
             }
         }
         .padding()
-        .frame(width: 300)
+        .frame(width: 400, height: 500)
         .glassBackgroundEffect()
     }
 }

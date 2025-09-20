@@ -30,30 +30,6 @@ struct Gestures {
                 currentAngle.wrappedValue += Float(value.radians)
             }
     }
-
-    static func rectangleDragGesture(rectangleEntity: Binding<ModelEntity?>, modelEntity: Binding<ModelEntity?>) -> some Gesture {
-        DragGesture()
-            .targetedToAnyEntity()
-            .onChanged { value in
-                guard let rect = rectangleEntity.wrappedValue, 
-                      let model = modelEntity.wrappedValue,
-                      value.entity == rect else { return }
-
-                let bounds = model.visualBounds(relativeTo: model)
-                let dragX = Float(value.translation.width) * 0.001
-                let dragZ = Float(value.translation.height) * 0.001
-                
-                let maxX = Float(bounds.extents.x / 2) - 0.05
-                let maxZ = Float(bounds.extents.z / 2) - 0.05
-                
-                rect.position.x = max(-maxX, min(maxX, dragX))
-                rect.position.z = max(-maxZ, min(maxZ, dragZ))
-                rect.position.y = Float(bounds.extents.y/2) + 0.1 
-            }
-            .onEnded { _ in
-            }
-    }
-
     /*
     // Pinch to scale (disabled for now)
     static func pinchGesture(modelEntity: Binding<ModelEntity?>, currentScale: Binding<Float>) -> some Gesture {

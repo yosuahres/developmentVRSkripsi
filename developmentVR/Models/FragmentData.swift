@@ -6,25 +6,32 @@
 //
 
 import Foundation
+import ARKit
+import RealityKit
 
-// Placeholder structs
-struct Slice {
-    var distanceFromLeftAnchor: Float = 0.0
-    var xRotationDegrees: Float = 0.0
-    var yRotationDegrees: Float = 0.0
-    var zRotationDegrees: Float = 0.0
+struct Slice: Codable, Hashable {
+    var distanceFromLeftAnchor: Float
+    var xRotationDegrees: Float
+    var yRotationDegrees: Float
+    var zRotationDegrees: Float
 }
 
-struct Fragment {
-    var startSlice: Slice = Slice()
-    var endSlice: Slice = Slice()
+struct Fragment: Codable, Hashable {
+    var startSlice: Slice
+    var endSlice: Slice
 }
 
-struct FragmentGroup {
-    var fragments: [Fragment] = []
-    var orientation: String = "x"
+struct FragmentGroup: Identifiable, Codable, Hashable {
+    var id = UUID()
+    let usdzModelName: String
+    let name: String
+    let description: String
+    var fragments: [Fragment]
+    var orientation: String
 }
 
 struct LoadedFragmentGroup {
-    var group: FragmentGroup = FragmentGroup()
+    let group: FragmentGroup
+    let referenceObject: ReferenceObject?
+    let usdzEntity: Entity?
 }

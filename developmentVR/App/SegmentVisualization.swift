@@ -119,14 +119,14 @@ class ObjectAnchorVisualization: ObservableObject {
                     let (width, height, depth): (Float, Float, Float) = {
                         switch fragmentGroup.group.orientation {
                         case "x":
-                            return (0.035, 0.035, 0.0005)
+                            return (0.035 * scale, 0.035 * scale, 0.0005 * scale)
                         case "y":
-                            return (0.035, 0.0005, 0.035)
+                            return (0.035 * scale, 0.0005 * scale, 0.035 * scale)
                         case "z":
-                            return (0.0005, 0.035, 0.035)
+                            return (0.0005 * scale, 0.035 * scale, 0.035 * scale)
                         default:
                             print("⚠️ Invalid orientation, defaulting to thin X")
-                            return (0.035, 0.035, 0.0005)
+                            return (0.035 * scale, 0.035 * scale, 0.0005 * scale)
                         }
                     }()
 
@@ -151,7 +151,7 @@ class ObjectAnchorVisualization: ObservableObject {
                         }
                     }()
                     
-                    let offset = direction * slice.distanceFromLeftAnchor
+                    let offset = direction * (slice.distanceFromLeftAnchor * scale)
                     sliceEntity.position = leftMostPoint + offset
                     
                     let eulerRotation = quaternionFromEuler(

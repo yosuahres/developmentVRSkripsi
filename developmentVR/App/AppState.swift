@@ -30,10 +30,7 @@ class AppState: ObservableObject {
 
     init() {
         Task {
-            await caseGroupLoader.loadCaseGroups([
-                CaseGroup(usdzModelName: "blue-1", name: "Patient Case 1", description: "Fibula patient 1"),
-                CaseGroup(usdzModelName: "Mandible", name: "Patient Case 2", description: "Mandible patient 2")
-            ])
+            await caseGroupLoader.loadCaseGroups(DummyFragmentData.caseGroups)
         }
     }
 

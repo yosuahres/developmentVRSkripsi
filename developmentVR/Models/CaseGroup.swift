@@ -6,18 +6,20 @@
 //
 
 import Foundation
-import RealityKit 
+import RealityKit
 
 struct CaseGroup: Identifiable, Hashable {
     let id = UUID()
     let usdzModelName: String
     let name: String
     let description: String
+    var fragmentGroups: [FragmentGroup] = []
 }
 
 struct LoadedCaseGroup: Identifiable {
     let id = UUID()
     let group: CaseGroup
     let usdzEntity: Entity?
-    let usdzURL: URL? 
+    let usdzURL: URL?
+    var loadedFragmentGroups: [LoadedFragmentGroup] = []
 }

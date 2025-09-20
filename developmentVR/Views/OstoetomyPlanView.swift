@@ -21,7 +21,8 @@ struct OstoetomyPlanView: View {
             if let selectedCaseGroup = appState.selectedCaseGroup,
                let usdzURL = selectedCaseGroup.usdzURL {
                 do {
-                    let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, fragmentGroup: nil, scale: currentScale)
+                    let fragmentGroup = selectedCaseGroup.loadedFragmentGroups.first
+                    let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, fragmentGroup: fragmentGroup, scale: currentScale)
                     let anchor = AnchorEntity(world: [0, 1.5, -2])
                     anchor.addChild(visualization.entity)
                     content.add(anchor)

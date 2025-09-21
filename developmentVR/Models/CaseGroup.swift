@@ -13,7 +13,6 @@ struct CaseGroup: Identifiable, Hashable {
     let usdzModelName: String
     let name: String
     let description: String
-    var fragmentGroups: [FragmentGroup] = []
 }
 
 struct LoadedCaseGroup: Identifiable {
@@ -21,5 +20,10 @@ struct LoadedCaseGroup: Identifiable {
     let group: CaseGroup
     let usdzEntity: Entity?
     let usdzURL: URL?
-    var loadedFragmentGroups: [LoadedFragmentGroup] = []
+}
+
+struct OstoetomyPlan: Identifiable {
+    let id = UUID()
+    var position: SIMD3<Float>
+    var rotation: simd_quatf
 }

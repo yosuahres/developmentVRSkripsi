@@ -9,7 +9,6 @@ import RealityKit
 import ARKit
 import SwiftUI
 
-// Helper function to convert Euler angles to a quaternion
 func quaternionFromEuler(xDeg: Float, yDeg: Float, zDeg: Float) -> simd_quatf {
     let xRad = xDeg * .pi / 180
     let yRad = yDeg * .pi / 180
@@ -22,8 +21,6 @@ func quaternionFromEuler(xDeg: Float, yDeg: Float, zDeg: Float) -> simd_quatf {
     return qz * qy * qx
 }
 
-
-// Placeholder extensions
 extension Entity {
     static func createAxes(axisScale: Float, alpha: CGFloat) -> Entity {
         let entity = Entity()
@@ -48,7 +45,7 @@ extension Entity {
         let modelEntity = ModelEntity(mesh: mesh, materials: [material])
         let entity = Entity()
         entity.addChild(modelEntity)
-        // Center the text
+
         let bounds = modelEntity.visualBounds(relativeTo: entity)
         modelEntity.position.x = -bounds.center.x
         return entity
@@ -63,34 +60,18 @@ class ObjectAnchorVisualization: ObservableObject {
     private let axisScale: Float = 0.05
     
     var boundingBoxOutline: BoundingBoxOutline
-    var hasPlacedFragments: Bool = false
-    
-    // Position locking properties
-    @Published var isPositionLocked: Bool = false
-    private var lockedTransform: Transform?
-    
-    let fragmentColors: [SimpleMaterial.Color] = [
-        SimpleMaterial.Color(red: 1.0, green: 0.5, blue: 0.0, alpha: 1.0),  // Pure orange
-        SimpleMaterial.Color(red: 1.0, green: 0.4, blue: 0.1, alpha: 1.0),  // Red-orange
-        SimpleMaterial.Color(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0),  // Light orange
-        SimpleMaterial.Color(red: 0.9, green: 0.3, blue: 0.0, alpha: 1.0),  // Dark orange
-        SimpleMaterial.Color(red: 1.0, green: 0.7, blue: 0.3, alpha: 1.0),  // Peach orange
-        SimpleMaterial.Color(red: 0.8, green: 0.4, blue: 0.0, alpha: 1.0)   // Burnt orange
-    ]
     
     var entity: Entity
     var modelEntity: ModelEntity?
     var anchorId: UUID
     
-    // Modified initializer to work with a USDZ model URL
-    init(usdzURL: URL, fragmentGroup: LoadedFragmentGroup?, scale: Float = 1.0) async throws {
+    init(usdzURL: URL, scale: Float = 1.0) async throws {
         let loadedModel = try await ModelEntity(contentsOf: usdzURL)
         loadedModel.name = usdzURL.lastPathComponent
         loadedModel.scale = [scale, scale, scale]
         self.anchorId = UUID()
         self.modelEntity = loadedModel
         
-        // Create the bounding box outline visualization based on the loaded model
         let bounds = loadedModel.visualBounds(relativeTo: nil)
         boundingBoxOutline = BoundingBoxOutline(bounds: bounds, color: .yellow, alpha: alpha)
         
@@ -98,77 +79,18 @@ class ObjectAnchorVisualization: ObservableObject {
         
         let originVisualization = Entity.createAxes(axisScale: axisScale, alpha: 0.7)
         
-        // Use the loaded model
         loadedModel.components.set(OpacityComponent(opacity: 0.7))
+        // Enable input for gestures
+        loadedModel.components.set(InputTargetComponent())
+        loadedModel.generateCollisionShapes(recursive: true)
         entity.addChild(loadedModel)
         
-        if let fragmentGroup = fragmentGroup {
-            let xAxisLeftMostPoint = bounds.center - SIMD3(bounds.extents.x / 2, 0, 0)
-            let xAxisDirection = SIMD3<Float>(1, 0, 0)
-            
-            let zAxisLeftMostPoint = bounds.center - SIMD3<Float>(0, 0, bounds.extents.z / 2)
-            let zAxisDirection = SIMD3<Float>(0, 0, 1)
-            
-            let yAxisLeftMostPoint = bounds.center - SIMD3<Float>(0, bounds.extents.y / 2, 0)
-            let yAxisDirection = SIMD3<Float>(0, 1, 0)
-            
-            for (index, fragment) in fragmentGroup.group.fragments.enumerated() {
-                let color = fragmentColors[index % fragmentColors.count]
-                
-                for slice in [fragment.startSlice, fragment.endSlice] {
-                    let (width, height, depth): (Float, Float, Float) = {
-                        switch fragmentGroup.group.orientation {
-                        case "x":
-                            return (0.035 * scale, 0.035 * scale, 0.0005 * scale)
-                        case "y":
-                            return (0.035 * scale, 0.0005 * scale, 0.035 * scale)
-                        case "z":
-                            return (0.0005 * scale, 0.035 * scale, 0.035 * scale)
-                        default:
-                            print("⚠️ Invalid orientation, defaulting to thin X")
-                            return (0.035 * scale, 0.035 * scale, 0.0005 * scale)
-                        }
-                    }()
-
-                    let mesh = MeshResource.generateBox(width: width, height: height, depth: depth)
-                    let material = SimpleMaterial(color: color, roughness: 0.5, isMetallic: false)
-                    let sliceModel = ModelEntity(mesh: mesh, materials: [material])
-                    
-                    let sliceEntity = Entity()
-                    sliceEntity.addChild(sliceModel)
-                    
-                    let (leftMostPoint, direction): (SIMD3<Float>, SIMD3<Float>) = {
-                        switch fragmentGroup.group.orientation {
-                        case "x":
-                            return (xAxisLeftMostPoint, xAxisDirection)
-                        case "y":
-                            return (yAxisLeftMostPoint, yAxisDirection)
-                        case "z":
-                            return (zAxisLeftMostPoint, zAxisDirection)
-                        default:
-                            print("⚠️ Invalid orientation, defaulting to X-axis")
-                            return (xAxisLeftMostPoint, xAxisDirection)
-                        }
-                    }()
-                    
-                    let offset = direction * (slice.distanceFromLeftAnchor * scale)
-                    sliceEntity.position = leftMostPoint + offset
-                    
-                    let eulerRotation = quaternionFromEuler(
-                        xDeg: slice.xRotationDegrees,
-                        yDeg: slice.yRotationDegrees,
-                        zDeg: slice.zRotationDegrees
-                    )
-                    
-                    sliceEntity.orientation = eulerRotation
-                    
-                    entity.addChild(sliceEntity)
-                }
-            }
-        }
+        print("📍 Configured for virtual model anchoring")
+        print("🔍 Model bounds: center=\(bounds.center), extents=\(bounds.extents)")
+        print("📏 Current scale: \(scale)")
         
-        boundingBoxOutline.entity.isEnabled = fragmentGroup == nil
-        originVisualization.isEnabled = fragmentGroup == nil
+        boundingBoxOutline.entity.isEnabled = true
+        originVisualization.isEnabled = true
         
         entity.addChild(originVisualization)
         entity.addChild(boundingBoxOutline.entity)
@@ -180,36 +102,17 @@ class ObjectAnchorVisualization: ObservableObject {
         self.entity = entity
     }
     
-    // This update function is no longer driven by an ARKit anchor.
-    // It can be adapted for manual updates if needed.
     func update() {
-        // If position is locked, don't update the transform
-        if isPositionLocked, let locked = lockedTransform {
-            entity.transform = locked
-            return
-        }
     }
     
-    // MARK: - Position Locking Methods
+    // MARK: - Virtual Model Anchoring
     
-    func lockPosition() {
-        isPositionLocked = true
-        lockedTransform = entity.transform
-        print("✅ Position locked for anchor: \(anchorId)")
+    func getModelBounds() -> BoundingBox? {
+        return modelEntity?.visualBounds(relativeTo: nil)
     }
     
-    func unlockPosition() {
-        isPositionLocked = false
-        lockedTransform = nil
-        print("🔓 Position unlocked for anchor: \(anchorId)")
-    }
-    
-    func togglePositionLock() {
-        if isPositionLocked {
-            unlockPosition()
-        } else {
-            lockPosition()
-        }
+    var anchoringStatus: String {
+        return "Anchored to Virtual USDZ Model"
     }
     
     @MainActor

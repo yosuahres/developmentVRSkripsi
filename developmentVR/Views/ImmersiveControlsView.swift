@@ -54,6 +54,26 @@ struct ImmersiveControlsView: View {
                 
                 Spacer()
                 
+                Button("Add Osteotomy Plane") {
+                    let modelPosition = appState.currentModelPosition
+                    
+                    // Add some variety to spawn positions around the model
+                    let planeCount = appState.osteotomyPlanes.count
+                    let angle = Float(planeCount) * 0.5 // Spread planes around
+                    let radius: Float = 0.15 // Distance from model
+                    
+                    let offsetX = cos(angle) * radius
+                    let offsetZ = sin(angle) * radius
+                    let spawnPosition = modelPosition + [offsetX, 0.05, offsetZ]
+                    
+                    appState.osteotomyPlanes.append(
+                        OstoetomyPlan(position: spawnPosition, rotation: simd_quatf(angle: 0, axis: [0,1,0]))
+                    )
+                }
+                .buttonStyle(.bordered)
+                
+                Spacer()
+                
                 Button("Close Immersive Space") {
                     Task {
                         await dismissImmersiveSpace()

@@ -27,6 +27,18 @@ class AppState: ObservableObject {
 
     let caseGroupLoader = CaseGroupLoader()
     @Published var selectedCaseGroup: LoadedCaseGroup?
+    @Published var osteotomyPlanes: [OstoetomyPlan] = []
+    
+    /// Gets the current model position for spawning planes nearby
+    var currentModelPosition: SIMD3<Float> {
+        if selectedCaseGroup?.usdzURL != nil {
+            // USDZ model is positioned at [0, 1.5, -2]
+            return [0, 1.5, -2]
+        } else {
+            // Mandible or fallback model is at world origin
+            return [0, 0, 0]
+        }
+    }
 
     init() {
         Task {
@@ -38,9 +50,6 @@ class AppState: ObservableObject {
         immersiveSpaceState = .closed
     }
 }
-
-
-
 
 @main
 struct developmentVRApp: App {

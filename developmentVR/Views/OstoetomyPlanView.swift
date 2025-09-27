@@ -15,10 +15,12 @@ struct OstoetomyPlanView: View {
     @State private var lastDragTranslation: CGSize = .zero
     @State private var currentAngle: Float = 0
     @State private var currentScale: Float = 0.001
-    @State private var planeAnchors: [UUID: AnchorEntity] = [:]
 
     var body: some View {
+        let planesState = appState.osteotomyPlanes 
+        
         RealityView { content in
+            print("🔵 OstoetomyPlanView: Initial RealityView setup")
             if let entity = try? await Entity(named: "Mandible", in: realityKitContentBundle) {
                 if let mandible = entity as? ModelEntity {
                     let mandibleAnchor = AnchorEntity(world: .zero)
@@ -47,38 +49,28 @@ struct OstoetomyPlanView: View {
                 }
             }
         } update: { content in
-            let currentPlaneIDs = Set(appState.osteotomyPlanes.map { $0.id })
-            let existingPlaneIDs = Set(planeAnchors.keys)
-            
-            for planeID in existingPlaneIDs.subtracting(currentPlaneIDs) {
-                if let anchor = planeAnchors[planeID] {
-                    content.remove(anchor)
-                    planeAnchors.removeValue(forKey: planeID)
-                }
+            let removedCount = content.entities.filter { $0.name.hasPrefix("PlaneAnchor_") }.count
+            content.entities.removeAll { entity in
+                entity.name.hasPrefix("PlaneAnchor_")
             }
             
-            for planeDef in appState.osteotomyPlanes {
-                if let existingAnchor = planeAnchors[planeDef.id] {
-                    existingAnchor.position = planeDef.position
-                    if let plane = existingAnchor.children.first as? ModelEntity {
-                        plane.orientation = planeDef.rotation
-                    }
-                } else {
-                    let plane = ModelEntity(
-                        mesh: .generatePlane(width: 0.1, height: 0.1),
-                        materials: [SimpleMaterial(color: .red.withAlphaComponent(0.7), isMetallic: false)]
-                    )
-                    plane.position = SIMD3<Float>(0, 0, 0)
-                    plane.orientation = planeDef.rotation
-                    
-                    plane.components.set(InputTargetComponent())
-                    plane.generateCollisionShapes(recursive: true)
-                    
-                    let planeAnchor = AnchorEntity(world: planeDef.position)
-                    planeAnchor.addChild(plane)
-                    content.add(planeAnchor)
-                    planeAnchors[planeDef.id] = planeAnchor
-                }
+            let visiblePlanes = planesState.filter { $0.isVisible }
+            
+            for planeDef in visiblePlanes {
+                let plane = ModelEntity(
+                    mesh: .generatePlane(width: 0.1, height: 0.1),
+                    materials: [SimpleMaterial(color: .red.withAlphaComponent(0.7), isMetallic: false)]
+                )
+                plane.position = SIMD3<Float>(0, 0, 0)
+                plane.orientation = planeDef.rotation
+                
+                plane.components.set(InputTargetComponent())
+                plane.generateCollisionShapes(recursive: true)
+                
+                let planeAnchor = AnchorEntity(world: planeDef.position)
+                planeAnchor.name = "PlaneAnchor_\(planeDef.id.uuidString)"
+                planeAnchor.addChild(plane)
+                content.add(planeAnchor)
             }
         }
         .gesture(Gestures.dragGesture(modelEntity: Binding(

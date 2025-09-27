@@ -26,4 +26,5 @@ struct OstoetomyPlan: Identifiable {
     let id = UUID()
     var position: SIMD3<Float>
     var rotation: simd_quatf
+    var isVisible: Bool = true
 }

@@ -35,14 +35,6 @@ struct ImmersiveControlsView: View {
                 
                 Divider()
                 
-                Text("Controls")
-                    .font(.headline)
-                Text("• Drag to move the model")
-                Text("• Rotate gesture to rotate")
-                    .padding(.vertical, 2)
-                
-                Divider()
-                
                 Toggle("Show Main Window", isOn: $isMainWindowVisible)
                     .onChange(of: isMainWindowVisible) { _, newValue in
                         if newValue {
@@ -54,23 +46,50 @@ struct ImmersiveControlsView: View {
                 
                 Spacer()
                 
-                Button("Add Osteotomy Plane") {
-                    let modelPosition = appState.currentModelPosition
+                HStack {
+                    Button(action: {
+                        let allPlanesAreVisible = appState.osteotomyPlanes.allSatisfy { $0.isVisible }
+                        for i in 0..<appState.osteotomyPlanes.count {
+                            appState.osteotomyPlanes[i].isVisible = !allPlanesAreVisible
+                        }
+                    }) {
+                        Image(systemName: appState.osteotomyPlanes.allSatisfy { $0.isVisible } ? "eye" : "eye.slash")
+                    }
+                    .buttonStyle(.bordered)
                     
-                    // Add some variety to spawn positions around the model
-                    let planeCount = appState.osteotomyPlanes.count
-                    let angle = Float(planeCount) * 0.5 // Spread planes around
-                    let radius: Float = 0.15 // Distance from model
+                    Button(action: {
+                        if appState.osteotomyPlanes.count > 1 {
+                            appState.osteotomyPlanes.removeLast()
+                        }
+                    }) {
+                        Image(systemName: "minus")
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(appState.osteotomyPlanes.count <= 1)
                     
-                    let offsetX = cos(angle) * radius
-                    let offsetZ = sin(angle) * radius
-                    let spawnPosition = modelPosition + [offsetX, 0.05, offsetZ]
-                    
-                    appState.osteotomyPlanes.append(
-                        OstoetomyPlan(position: spawnPosition, rotation: simd_quatf(angle: 0, axis: [0,1,0]))
-                    )
+                    Button(action: {
+                        let modelPosition = appState.currentModelPosition
+                        
+                        // randomise
+                        let planeCount = appState.osteotomyPlanes.count
+                        let angle = Float(planeCount) * Float.pi / 3.0  
+                        let radius: Float = 0.3  
+                        
+                        let offsetX = cos(angle) * radius
+                        let offsetZ = sin(angle) * radius
+                        let offsetY = Float.random(in: -0.1...0.1)  
+                        let spawnPosition = modelPosition + [offsetX, offsetY, offsetZ]
+                        
+                        print("🔵 Creating new plane at position: \(spawnPosition)")
+                        
+                        appState.osteotomyPlanes.append(
+                            OstoetomyPlan(position: spawnPosition, rotation: simd_quatf(angle: 0, axis: [0,1,0]))
+                        )
+                    }) {
+                        Image(systemName: "plus")
+                    }
+                    .buttonStyle(.bordered)
                 }
-                .buttonStyle(.bordered)
                 
                 Spacer()
                 
@@ -79,6 +98,7 @@ struct ImmersiveControlsView: View {
                         await dismissImmersiveSpace()
                         appState.immersiveSpaceState = .closed
                         openWindow(id: "main")
+                        dismissWindow(id: "controls")
                     }
                 }
                 .buttonStyle(.bordered)

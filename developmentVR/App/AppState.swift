@@ -29,14 +29,21 @@ class AppState: ObservableObject {
     @Published var selectedCaseGroup: LoadedCaseGroup?
     @Published var osteotomyPlanes: [OstoetomyPlan] = []
     
-    /// Gets the current model position for spawning planes nearby
     var currentModelPosition: SIMD3<Float> {
         if selectedCaseGroup?.usdzURL != nil {
-            // USDZ model is positioned at [0, 1.5, -2]
-            return [0, 1.5, -2]
+            let basePosition: SIMD3<Float> = [0, 1.5, -2]
+            let randomOffset: SIMD3<Float> = [
+                Float.random(in: -0.2...0.2),
+                Float.random(in: -0.1...0.1), 
+                Float.random(in: -0.2...0.2)
+            ]
+            return basePosition + randomOffset
         } else {
-            // Mandible or fallback model is at world origin
-            return [0, 0, 0]
+            return [
+                Float.random(in: -0.3...0.3),
+                Float.random(in: -0.1...0.1),
+                Float.random(in: -0.3...0.3)
+            ]
         }
     }
 
@@ -72,6 +79,9 @@ struct developmentVRApp: App {
                 .onAppear {
                     appState.immersiveSpaceState = .open
                     appState.isControlWindowOpened = true
+                    if appState.osteotomyPlanes.isEmpty {
+                        appState.osteotomyPlanes.append(OstoetomyPlan(position: appState.currentModelPosition, rotation: simd_quatf(angle: 0, axis: [0,1,0])))
+                    }
                 }
                 .onDisappear {
                     appState.immersiveSpaceState = .closed

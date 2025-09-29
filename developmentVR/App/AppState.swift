@@ -20,6 +20,13 @@ class AppState: ObservableObject {
     
     @Published var immersiveSpaceState = ImmersiveSpaceState.closed
     @Published var isControlWindowOpened = false
+    @Published var controlsWindowState: WindowState = .closed
+    
+    enum WindowState {
+        case closed
+        case opening
+        case open
+    }
     
     var isImmersiveSpaceOpened: Bool {
         immersiveSpaceState == .open
@@ -56,6 +63,23 @@ class AppState: ObservableObject {
     func didLeaveImmersiveSpace() {
         immersiveSpaceState = .closed
     }
+    
+    // Centralized window management methods
+    func openControlsWindow(openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) async {
+        // Always dismiss first to prevent duplicates
+        dismissWindow(id: "controls")
+        
+        controlsWindowState = .opening
+        openWindow(id: "controls")
+        controlsWindowState = .open
+    }
+    
+    func closeControlsWindow(dismissWindow: DismissWindowAction) async {
+        if controlsWindowState == .open {
+            dismissWindow(id: "controls")
+            controlsWindowState = .closed
+        }
+    }
 }
 
 @main
@@ -86,6 +110,7 @@ struct developmentVRApp: App {
                 .onDisappear {
                     appState.immersiveSpaceState = .closed
                     appState.isControlWindowOpened = false
+                    appState.controlsWindowState = .closed
                 }
         }
         .immersionStyle(selection: .constant(.full), in: .full)

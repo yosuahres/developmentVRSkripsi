@@ -86,7 +86,7 @@ struct HomeView: View {
                                     switch await openImmersiveSpace(id: immersiveSpaceIdentifier) {
                                     case .opened:
                                         appState.immersiveSpaceState = .open
-                                        openWindow(id: "controls")
+                                        await appState.openControlsWindow(openWindow: openWindow, dismissWindow: dismissWindow)
                                         dismissWindow(id: "main")
                                     case .error:
                                         print("An error occurred when trying to open the immersive space \(immersiveSpaceIdentifier)")

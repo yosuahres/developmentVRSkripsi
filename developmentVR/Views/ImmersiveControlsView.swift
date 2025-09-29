@@ -35,16 +35,16 @@ struct ImmersiveControlsView: View {
                 
                 Divider()
                 
-                Toggle("Show Main Window", isOn: $isMainWindowVisible)
-                    .onChange(of: isMainWindowVisible) { _, newValue in
-                        if newValue {
-                            openWindow(id: "main")
-                        } else {
-                            dismissWindow(id: "main")
-                        }
-                    }
+                // Toggle("Show Main Window", isOn: $isMainWindowVisible)
+                //     .onChange(of: isMainWindowVisible) { _, newValue in
+                //         if newValue {
+                //             openWindow(id: "main")
+                //         } else {
+                //             dismissWindow(id: "main")
+                //         }
+                //     }
                 
-                Spacer()
+                // Spacer()
                 
                 HStack {
                     Button(action: {
@@ -98,7 +98,7 @@ struct ImmersiveControlsView: View {
                         await dismissImmersiveSpace()
                         appState.immersiveSpaceState = .closed
                         openWindow(id: "main")
-                        dismissWindow(id: "controls")
+                        await appState.closeControlsWindow(dismissWindow: dismissWindow)
                     }
                 }
                 .buttonStyle(.bordered)

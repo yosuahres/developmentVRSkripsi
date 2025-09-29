@@ -75,10 +75,8 @@ class AppState: ObservableObject {
     }
     
     func closeControlsWindow(dismissWindow: DismissWindowAction) async {
-        if controlsWindowState == .open {
-            dismissWindow(id: "controls")
-            controlsWindowState = .closed
-        }
+        dismissWindow(id: "controls")
+        controlsWindowState = .closed
     }
 }
 
@@ -110,7 +108,6 @@ struct developmentVRApp: App {
                 .onDisappear {
                     appState.immersiveSpaceState = .closed
                     appState.isControlWindowOpened = false
-                    appState.controlsWindowState = .closed
                 }
         }
         .immersionStyle(selection: .constant(.full), in: .full)

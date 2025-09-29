@@ -95,10 +95,10 @@ struct ImmersiveControlsView: View {
                 
                 Button("Close Immersive Space") {
                     Task {
+                        await appState.closeControlsWindow(dismissWindow: dismissWindow)
                         await dismissImmersiveSpace()
                         appState.immersiveSpaceState = .closed
                         openWindow(id: "main")
-                        await appState.closeControlsWindow(dismissWindow: dismissWindow)
                     }
                 }
                 .buttonStyle(.bordered)

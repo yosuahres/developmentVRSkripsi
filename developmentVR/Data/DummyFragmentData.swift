@@ -11,13 +11,13 @@ struct DummyFragmentData {
     static let caseGroups: [CaseGroup] = [
         CaseGroup(
             usdzModelName: "Mandible",
-            name: "Mandible Case",
-            description: "A case with a mandible model for visualization."
+            name: "Mandible Case 1",
+            description: "Dummy Mandible case-1 from internet"
         ),
         CaseGroup(
             usdzModelName: "Mandible",
             name: "Mandible Case 2",
-            description: "Another case with a mandible model for visualization."
+            description: "Dummy Mandible case-2 from internet"
         )
     ]
 }

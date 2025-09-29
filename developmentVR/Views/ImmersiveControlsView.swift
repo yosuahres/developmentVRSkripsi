@@ -35,17 +35,6 @@ struct ImmersiveControlsView: View {
                 
                 Divider()
                 
-                // Toggle("Show Main Window", isOn: $isMainWindowVisible)
-                //     .onChange(of: isMainWindowVisible) { _, newValue in
-                //         if newValue {
-                //             openWindow(id: "main")
-                //         } else {
-                //             dismissWindow(id: "main")
-                //         }
-                //     }
-                
-                // Spacer()
-                
                 HStack {
                     Button(action: {
                         let allPlanesAreVisible = appState.osteotomyPlanes.allSatisfy { $0.isVisible }

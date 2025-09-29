@@ -11,16 +11,20 @@ import RealityKit
 @MainActor
 class AppState: ObservableObject {
     let immersiveSpaceID = "ImmersiveSpace"
+    let caseGroupLoader = CaseGroupLoader()
+    
+    @Published var immersiveSpaceState = ImmersiveSpaceState.closed
+    @Published var isControlWindowOpened = false
+    @Published var controlsWindowState: WindowState = .closed
+
+    @Published var selectedCaseGroup: LoadedCaseGroup?
+    @Published var osteotomyPlanes: [OstoetomyPlan] = []
     
     enum ImmersiveSpaceState {
         case closed
         case inTransition
         case open
     }
-    
-    @Published var immersiveSpaceState = ImmersiveSpaceState.closed
-    @Published var isControlWindowOpened = false
-    @Published var controlsWindowState: WindowState = .closed
     
     enum WindowState {
         case closed
@@ -31,10 +35,6 @@ class AppState: ObservableObject {
     var isImmersiveSpaceOpened: Bool {
         immersiveSpaceState == .open
     }
-
-    let caseGroupLoader = CaseGroupLoader()
-    @Published var selectedCaseGroup: LoadedCaseGroup?
-    @Published var osteotomyPlanes: [OstoetomyPlan] = []
     
     var currentModelPosition: SIMD3<Float> {
         if selectedCaseGroup?.usdzURL != nil {
@@ -64,9 +64,7 @@ class AppState: ObservableObject {
         immersiveSpaceState = .closed
     }
     
-    // Centralized window management methods
     func openControlsWindow(openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) async {
-        // Always dismiss first to prevent duplicates
         dismissWindow(id: "controls")
         
         controlsWindowState = .opening

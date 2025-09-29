@@ -108,6 +108,6 @@ struct HomeView: View {
     }
 }
 
-#Preview {
-    HomeView(appState: AppState(), immersiveSpaceIdentifier: "ImmersiveSpace")
-}
+// #Preview {
+//     HomeView(appState: AppState(), immersiveSpaceIdentifier: "ImmersiveSpace")
+// }

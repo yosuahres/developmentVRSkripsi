@@ -50,10 +50,9 @@ struct OstoetomyPlanView: View {
                     }
                 }
             }
+            
         } update: { content in
-            // disabled
-            /*
-            let removedCount = content.entities.filter { $0.name.hasPrefix("PlaneAnchor_") }.count
+            // Remove existing planes to prevent duplicates
             content.entities.removeAll { entity in
                 entity.name.hasPrefix("PlaneAnchor_")
             }
@@ -62,10 +61,10 @@ struct OstoetomyPlanView: View {
             
             for planeDef in visiblePlanes {
                 let plane = ModelEntity(
-                    mesh: .generatePlane(width: 0.1, height: 0.1),
-                    materials: [SimpleMaterial(color: .red.withAlphaComponent(0.7), isMetallic: false)]
+                    mesh: .generatePlane(width: 0.1, height: 0.1), // 10cm x 10cm
+                    materials: [SimpleMaterial(color: .red, isMetallic: false)] // Opaque red for visibility
                 )
-                plane.position = SIMD3<Float>(0, 0, 0)
+                plane.position = SIMD3<Float>(0, 0, 0) // Position relative to its anchor
                 plane.orientation = planeDef.rotation
                 
                 plane.components.set(InputTargetComponent())
@@ -76,12 +75,11 @@ struct OstoetomyPlanView: View {
                 planeAnchor.addChild(plane)
                 content.add(planeAnchor)
             }
-            */
         }
         .simultaneousGesture(Gestures.tapGesture(modelEntity: Binding(
             get: { mandibleModelEntity },
             set: { _ in }
-        )))
+        ), appState: appState))
         .simultaneousGesture(Gestures.dragGesture(modelEntity: Binding(
             get: { objectAnchorVisualization?.modelEntity },
             set: { _ in }

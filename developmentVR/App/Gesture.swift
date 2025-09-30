@@ -38,45 +38,68 @@ struct Gestures {
             }
     }
 
-    static func tapGesture(modelEntity: Binding<ModelEntity?>) -> some Gesture {
+    static func tapGesture(modelEntity: Binding<ModelEntity?>, appState: AppState) -> some Gesture {
         SpatialTapGesture()
             .onEnded { value in
+                print("Tap gesture ended.")
                 guard let mandible = modelEntity.wrappedValue,
-                      let scene = mandible.scene else { return }
+                      let scene = mandible.scene else {
+                    print("ERROR: Mandible model or scene not available.")
+                    return
+                }
+                print("Mandible and scene are available.")
 
                 let tapLocation3D = value.location3D
                 let tapLocation = SIMD3<Float>(Float(tapLocation3D.x), Float(tapLocation3D.y), Float(tapLocation3D.z))
+                print("Tap location 3D: \(tapLocation3D)")
+                print("Tap location (SIMD3): \(tapLocation)")
                 
                 // In an immersive space, the camera is at the origin of the scene.
                 let cameraPosition = SIMD3<Float>.zero
+                print("Camera position: \(cameraPosition)")
                 
-                if let result = scene.raycast(from: cameraPosition, to: tapLocation, query: .nearest, mask: .all).first,
-                   result.entity == mandible {
-                    
-                    let worldPosition = result.position
-                    let worldNormal = result.normal
-                    
-                    let mandibleTransform = mandible.transformMatrix(relativeTo: nil)
-                    let inverseMandibleTransform = mandibleTransform.inverse
-                    
-                    let transformedPoint4 = inverseMandibleTransform * SIMD4<Float>(worldPosition, 1)
-                    let localPosition = SIMD3<Float>(transformedPoint4.x, transformedPoint4.y, transformedPoint4.z)
+                // Calculate a direction vector from camera to tap location
+                let direction = normalize(tapLocation - cameraPosition)
+                // Extend the ray to a reasonable distance (e.g., 1 meter)
+                let rayEndPoint = cameraPosition + direction * 1.0 // 1 meter in front of camera along tap direction
+                print("Raycast from cameraPosition: \(cameraPosition) to rayEndPoint: \(rayEndPoint)")
 
-                    let transformedNormal4 = inverseMandibleTransform * SIMD4<Float>(worldNormal, 0)
-                    let localNormal = normalize(SIMD3<Float>(transformedNormal4.x, transformedNormal4.y, transformedNormal4.z))
-                    
-                    let plane = ModelEntity(
-                        mesh: .generatePlane(width: 0.1, height: 0.1),
-                        materials: [SimpleMaterial(color: .blue.withAlphaComponent(0.8), isMetallic: false)]
-                    )
-                    
-                    plane.position = localPosition
-                    
-                    let upVector = SIMD3<Float>(0, 0, 1)
-                    let quaternion = simd_quatf(from: upVector, to: localNormal)
-                    plane.orientation = quaternion
-                    
-                    mandible.addChild(plane)
+                let raycastResults = scene.raycast(from: cameraPosition, to: rayEndPoint, query: .nearest, mask: .all)
+                print("Raycast performed. Number of results: \(raycastResults.count)")
+
+                if let result = raycastResults.first {
+                    print("First raycast result entity: \(result.entity.name)")
+                    if result.entity == mandible {
+                        print("Raycast hit the mandible!")
+                        
+                        // Use the center of the mandible's visual bounds as the local position
+                        let localPosition = mandible.visualBounds(relativeTo: mandible).center
+                        let worldNormal = result.normal
+                        print("Using mandible's local bounds center as localPosition: \(localPosition)")
+                        print("World hit normal: \(worldNormal)")
+                        
+                        // Scale down the local position by the mandible's current scale
+                        let scaledLocalPosition = localPosition * mandible.scale.x // Assuming uniform scale
+                        
+                        let mandibleTransform = mandible.transformMatrix(relativeTo: nil)
+                        let inverseMandibleTransform = mandibleTransform.inverse
+                        let transformedNormal4 = inverseMandibleTransform * SIMD4<Float>(worldNormal, 0)
+                        let localNormal = normalize(SIMD3<Float>(transformedNormal4.x, transformedNormal4.y, transformedNormal4.z))
+                        print("Local hit position (scaled): \(scaledLocalPosition)")
+                        print("Local hit normal: \(localNormal)")
+                        
+                        // Create an OstoetomyPlan and add it to appState
+                        let newPlane = OstoetomyPlan(position: scaledLocalPosition, rotation: simd_quatf(from: SIMD3<Float>(0, 0, 1), to: localNormal))
+                        
+                        Task { @MainActor in
+                            appState.osteotomyPlanes.append(newPlane)
+                            print("Created OstoetomyPlan and added to appState.osteotomyPlanes at scaled local position: \(scaledLocalPosition)")
+                        }
+                    } else {
+                        print("Raycast hit an entity other than the mandible: \(result.entity.name)")
+                    }
+                } else {
+                    print("Raycast did not hit any entity.")
                 }
             }
     }

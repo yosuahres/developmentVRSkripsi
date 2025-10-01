@@ -13,10 +13,10 @@ struct OstoetomyPlanView: View {
     @ObservedObject var appState: AppState
     @State private var objectAnchorVisualization: ObjectAnchorVisualization?
     @State private var mandibleModelEntity: ModelEntity?
-    @State private var mandibleAnchorWorldPosition: SIMD3<Float> = .zero // New state variable
+    @State private var mandibleAnchorWorldPosition: SIMD3<Float> = .zero 
     @State private var lastDragTranslation: CGSize = .zero
     @State private var currentAngle: Float = 0
-    @State private var currentScale: Float = 0.001
+    @State private var currentScale: Float = 0.1
 
     var body: some View {
         let planesState = appState.osteotomyPlanes
@@ -26,21 +26,25 @@ struct OstoetomyPlanView: View {
                 if let mandible = entity as? ModelEntity {
                     let mandibleAnchor = AnchorEntity(world: [0, 1.5, -2]) // Consistent world position
                     mandibleAnchor.addChild(mandible)
+                    // Apply scale to the mandible after adding to anchor
+                    mandible.scale = [currentScale, currentScale, currentScale]
                     content.add(mandibleAnchor)
                     mandibleModelEntity = mandible
-                    mandibleAnchorWorldPosition = mandibleAnchor.position(relativeTo: nil) // Set world position here too
+                    mandibleAnchorWorldPosition = SIMD3<Float>(0, 1.5, -2) 
                 }
             } else {
                 if let selectedCaseGroup = appState.selectedCaseGroup,
                    let usdzURL = selectedCaseGroup.usdzURL {
                     do {
-                        let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, scale: currentScale)
+                        let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, scale: 1.0) 
                         let anchor = AnchorEntity(world: [0, 1.5, -2])
                         anchor.addChild(visualization.entity)
+                        // Apply scale to the parent entity after adding to anchor
+                        visualization.entity.scale = [currentScale, currentScale, currentScale]
                         content.add(anchor)
                         objectAnchorVisualization = visualization
                         mandibleModelEntity = visualization.modelEntity
-                        mandibleAnchorWorldPosition = anchor.position(relativeTo: nil) // Set the world position
+                        mandibleAnchorWorldPosition = SIMD3<Float>(0, 1.5, -2) // Set to known world position
                     } catch {
                         print("Error loading or creating visualization: \(error)")
                         if let fallbackScene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
@@ -55,7 +59,6 @@ struct OstoetomyPlanView: View {
             }
             
         } update: { content in
-            // Remove existing planes to prevent duplicates
             content.entities.removeAll { entity in
                 entity.name.hasPrefix("PlaneAnchor_")
             }
@@ -64,9 +67,15 @@ struct OstoetomyPlanView: View {
             
             for planeDef in visiblePlanes {
                 let plane = ModelEntity(
-                    mesh: .generatePlane(width: 0.1, height: 0.1), // 10cm x 10cm
-                    materials: [SimpleMaterial(color: .red, isMetallic: false)] // Opaque red for visibility
+                    mesh: .generatePlane(width: 0.2, height: 0.2), // 20cm x 20cm
+                    materials: [SimpleMaterial(color: .red, isMetallic: false)]
                 )
+                
+                if var material = plane.model?.materials.first as? SimpleMaterial {
+                    material.faceCulling = .none 
+                    plane.model?.materials = [material]
+                }
+                
                 plane.position = SIMD3<Float>(0, 0, 0) // Position relative to its anchor
                 plane.orientation = planeDef.rotation
                 
@@ -82,7 +91,7 @@ struct OstoetomyPlanView: View {
         .simultaneousGesture(Gestures.tapGesture(modelEntity: Binding(
             get: { mandibleModelEntity },
             set: { _ in }
-        ), appState: appState, mandibleAnchorWorldPosition: SIMD3<Float>(0, 1.5, -2))) // Pass literal world position
+        ), appState: appState, mandibleAnchorWorldPosition: mandibleAnchorWorldPosition)) // Use the actual stored world position
         .simultaneousGesture(Gestures.dragGesture(modelEntity: Binding(
             get: { objectAnchorVisualization?.modelEntity },
             set: { _ in }

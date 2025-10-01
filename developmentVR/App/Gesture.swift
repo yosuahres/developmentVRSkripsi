@@ -61,7 +61,8 @@ struct Gestures {
                 // Calculate a direction vector from camera to tap location
                 let direction = normalize(tapLocation - cameraPosition)
                 // Extend the ray to a reasonable distance (e.g., 1 meter)
-                let rayEndPoint = cameraPosition + direction * 1.0 // 1 meter in front of camera along tap direction
+                // let rayEndPoint = cameraPosition + direction * 1.0
+                let rayEndPoint = cameraPosition + direction
                 print("Raycast from cameraPosition: \(cameraPosition) to rayEndPoint: \(rayEndPoint)")
 
                 let raycastResults = scene.raycast(from: cameraPosition, to: rayEndPoint, query: .nearest, mask: .all)
@@ -72,18 +73,44 @@ struct Gestures {
                     if result.entity == mandible {
                         print("Raycast hit the mandible!")
                         
+                        let worldHitPosition = result.position
                         let worldNormal = result.normal
+                        print("World hit position (original): \(worldHitPosition)")
                         print("World hit normal: \(worldNormal)")
                         
-                        // Place the plane at the mandible's anchor world position, offset by its normal
-                        let offset: Float = 0.01 // 1 cm offset
-                        let planeWorldPosition = mandibleAnchorWorldPosition + worldNormal * offset
+                        // Get the actual scale - check if the mandible itself is scaled or its parent
+                        var actualScale: Float = 1.0
+                        if let parent = mandible.parent {
+                            // If mandible has a parent that's scaled, use parent's scale
+                            actualScale = parent.scale.x
+                            print("Using parent scale: \(actualScale)")
+                        } else {
+                            // Otherwise use mandible's own scale
+                            actualScale = mandible.scale.x
+                            print("Using mandible scale: \(actualScale)")
+                        }
+                        
+                        // Transform the hit position to account for the mandible's scaling
+                        // First, get position relative to mandible anchor
+                        let relativeHitPosition = worldHitPosition - mandibleAnchorWorldPosition
+                        // Scale it down to match the visual representation
+                        let scaledRelativePosition = relativeHitPosition * actualScale
+                        // Transform back to world coordinates
+                        let scaledWorldHitPosition = mandibleAnchorWorldPosition + scaledRelativePosition
+                        
+                        print("Scaled world hit position: \(scaledWorldHitPosition)")
+                        
+                        // Place the plane exactly at the scaled hit position on the surface
+                        // Only add a tiny offset (0.001m = 1mm) to prevent z-fighting
+                        let offset: Float = 0.001 
+                        let planeWorldPosition = scaledWorldHitPosition + worldNormal * offset
                         
                         print("Mandible anchor world position (passed): \(mandibleAnchorWorldPosition)")
                         print("Plane world position: \(planeWorldPosition)")
                         
                         // Create an OstoetomyPlan and add it to appState
-                        let newPlane = OstoetomyPlan(position: planeWorldPosition, rotation: simd_quatf(from: SIMD3<Float>(0, 0, 1), to: worldNormal))
+                        // Fix: RealityKit plane mesh has normal pointing in Y direction (0, 1, 0), not Z direction
+                        let newPlane = OstoetomyPlan(position: planeWorldPosition, rotation: simd_quatf(from: SIMD3<Float>(1, 0, 0), to: worldNormal))
                         
                         Task { @MainActor in
                             appState.osteotomyPlanes.append(newPlane)

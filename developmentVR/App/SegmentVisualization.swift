@@ -68,7 +68,7 @@ class ObjectAnchorVisualization: ObservableObject {
     init(usdzURL: URL, scale: Float = 1.0) async throws {
         let loadedModel = try await ModelEntity(contentsOf: usdzURL)
         loadedModel.name = usdzURL.lastPathComponent
-        loadedModel.scale = [scale, scale, scale]
+        // Model is loaded at original scale - scaling will be applied to the parent entity
         self.anchorId = UUID()
         self.modelEntity = loadedModel
         
@@ -87,7 +87,7 @@ class ObjectAnchorVisualization: ObservableObject {
         
         print("📍 Configured for virtual model anchoring")
         print("🔍 Model bounds: center=\(bounds.center), extents=\(bounds.extents)")
-        print("📏 Current scale: \(scale)")
+        print("📏 Model loaded at original scale, scaling applied to parent entity")
         
         boundingBoxOutline.entity.isEnabled = true
         originVisualization.isEnabled = true

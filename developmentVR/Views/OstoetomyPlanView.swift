@@ -13,6 +13,7 @@ struct OstoetomyPlanView: View {
     @ObservedObject var appState: AppState
     @State private var objectAnchorVisualization: ObjectAnchorVisualization?
     @State private var mandibleModelEntity: ModelEntity?
+    @State private var mandibleAnchorWorldPosition: SIMD3<Float> = .zero // New state variable
     @State private var lastDragTranslation: CGSize = .zero
     @State private var currentAngle: Float = 0
     @State private var currentScale: Float = 0.001
@@ -23,10 +24,11 @@ struct OstoetomyPlanView: View {
         RealityView { content in
             if let entity = try? await Entity(named: "Mandible", in: realityKitContentBundle) {
                 if let mandible = entity as? ModelEntity {
-                    let mandibleAnchor = AnchorEntity(world: .zero)
+                    let mandibleAnchor = AnchorEntity(world: [0, 1.5, -2]) // Consistent world position
                     mandibleAnchor.addChild(mandible)
                     content.add(mandibleAnchor)
                     mandibleModelEntity = mandible
+                    mandibleAnchorWorldPosition = mandibleAnchor.position(relativeTo: nil) // Set world position here too
                 }
             } else {
                 if let selectedCaseGroup = appState.selectedCaseGroup,
@@ -38,6 +40,7 @@ struct OstoetomyPlanView: View {
                         content.add(anchor)
                         objectAnchorVisualization = visualization
                         mandibleModelEntity = visualization.modelEntity
+                        mandibleAnchorWorldPosition = anchor.position(relativeTo: nil) // Set the world position
                     } catch {
                         print("Error loading or creating visualization: \(error)")
                         if let fallbackScene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
@@ -79,7 +82,7 @@ struct OstoetomyPlanView: View {
         .simultaneousGesture(Gestures.tapGesture(modelEntity: Binding(
             get: { mandibleModelEntity },
             set: { _ in }
-        ), appState: appState))
+        ), appState: appState, mandibleAnchorWorldPosition: SIMD3<Float>(0, 1.5, -2))) // Pass literal world position
         .simultaneousGesture(Gestures.dragGesture(modelEntity: Binding(
             get: { objectAnchorVisualization?.modelEntity },
             set: { _ in }

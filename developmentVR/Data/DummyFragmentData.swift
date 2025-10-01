@@ -18,6 +18,11 @@ struct DummyFragmentData {
             usdzModelName: "Mandible",
             name: "Mandible Case 2",
             description: "Dummy Mandible case-2 from internet"
+        ),
+        CaseGroup(
+            usdzModelName: "blue-1" ,
+            name: "Fibula Case 3",
+            description: "Dummy Fibula case-3 from dhafin"
         )
     ]
 }

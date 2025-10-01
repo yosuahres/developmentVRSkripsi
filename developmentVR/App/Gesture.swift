@@ -38,7 +38,7 @@ struct Gestures {
             }
     }
 
-    static func tapGesture(modelEntity: Binding<ModelEntity?>, appState: AppState) -> some Gesture {
+    static func tapGesture(modelEntity: Binding<ModelEntity?>, appState: AppState, mandibleAnchorWorldPosition: SIMD3<Float>) -> some Gesture {
         SpatialTapGesture()
             .onEnded { value in
                 print("Tap gesture ended.")
@@ -72,28 +72,22 @@ struct Gestures {
                     if result.entity == mandible {
                         print("Raycast hit the mandible!")
                         
-                        // Use the center of the mandible's visual bounds as the local position
-                        let localPosition = mandible.visualBounds(relativeTo: mandible).center
                         let worldNormal = result.normal
-                        print("Using mandible's local bounds center as localPosition: \(localPosition)")
                         print("World hit normal: \(worldNormal)")
                         
-                        // Scale down the local position by the mandible's current scale
-                        let scaledLocalPosition = localPosition * mandible.scale.x // Assuming uniform scale
+                        // Place the plane at the mandible's anchor world position, offset by its normal
+                        let offset: Float = 0.01 // 1 cm offset
+                        let planeWorldPosition = mandibleAnchorWorldPosition + worldNormal * offset
                         
-                        let mandibleTransform = mandible.transformMatrix(relativeTo: nil)
-                        let inverseMandibleTransform = mandibleTransform.inverse
-                        let transformedNormal4 = inverseMandibleTransform * SIMD4<Float>(worldNormal, 0)
-                        let localNormal = normalize(SIMD3<Float>(transformedNormal4.x, transformedNormal4.y, transformedNormal4.z))
-                        print("Local hit position (scaled): \(scaledLocalPosition)")
-                        print("Local hit normal: \(localNormal)")
+                        print("Mandible anchor world position (passed): \(mandibleAnchorWorldPosition)")
+                        print("Plane world position: \(planeWorldPosition)")
                         
                         // Create an OstoetomyPlan and add it to appState
-                        let newPlane = OstoetomyPlan(position: scaledLocalPosition, rotation: simd_quatf(from: SIMD3<Float>(0, 0, 1), to: localNormal))
+                        let newPlane = OstoetomyPlan(position: planeWorldPosition, rotation: simd_quatf(from: SIMD3<Float>(0, 0, 1), to: worldNormal))
                         
                         Task { @MainActor in
                             appState.osteotomyPlanes.append(newPlane)
-                            print("Created OstoetomyPlan and added to appState.osteotomyPlanes at scaled local position: \(scaledLocalPosition)")
+                            print("Created OstoetomyPlan and added to appState.osteotomyPlanes at world position: \(planeWorldPosition)")
                         }
                     } else {
                         print("Raycast hit an entity other than the mandible: \(result.entity.name)")

@@ -35,50 +35,69 @@ struct ImmersiveControlsView: View {
                 
                 Divider()
                 
-                HStack {
-                    Button(action: {
-                        let allPlanesAreVisible = appState.osteotomyPlanes.allSatisfy { $0.isVisible }
-                        for i in 0..<appState.osteotomyPlanes.count {
-                            appState.osteotomyPlanes[i].isVisible = !allPlanesAreVisible
-                        }
-                    }) {
-                        Image(systemName: appState.osteotomyPlanes.allSatisfy { $0.isVisible } ? "eye" : "eye.slash")
-                    }
-                    .buttonStyle(.bordered)
+                // MARK: - Mandible Raycast Controls
+                VStack(spacing: 10) {
+                    Text("Mandible Analysis")
+                        .font(.headline)
                     
                     Button(action: {
-                        if appState.osteotomyPlanes.count > 1 {
-                            appState.osteotomyPlanes.removeLast()
+                        appState.performMandibleRaycast()
+                    }) {
+                        HStack {
+                            Image(systemName: "target")
+                            Text("Spawn Planes on Mandible")
                         }
-                    }) {
-                        Image(systemName: "minus")
                     }
                     .buttonStyle(.bordered)
-                    .disabled(appState.osteotomyPlanes.count <= 1)
-                    
-                    Button(action: {
-                        let modelPosition = appState.currentModelPosition
-                        
-                        // randomise
-                        let planeCount = appState.osteotomyPlanes.count
-                        let angle = Float(planeCount) * Float.pi / 3.0  
-                        let radius: Float = 0.3  
-                        
-                        let offsetX = cos(angle) * radius
-                        let offsetZ = sin(angle) * radius
-                        let offsetY = Float.random(in: -0.1...0.1)  
-                        let spawnPosition = modelPosition + [offsetX, offsetY, offsetZ]
-                        
-                        print("🔵 Creating new plane at position: \(spawnPosition)")
-                        
-                        appState.osteotomyPlanes.append(
-                            OstoetomyPlan(position: spawnPosition, rotation: simd_quatf(angle: 0, axis: [0,1,0]))
-                        )
-                    }) {
-                        Image(systemName: "plus")
-                    }
-                    .buttonStyle(.bordered)
+                    .foregroundColor(.blue)
                 }
+                
+                Divider()
+                
+                // HStack {
+                //     Button(action: {
+                //         let allPlanesAreVisible = appState.osteotomyPlanes.allSatisfy { $0.isVisible }
+                //         for i in 0..<appState.osteotomyPlanes.count {
+                //             appState.osteotomyPlanes[i].isVisible = !allPlanesAreVisible
+                //         }
+                //     }) {
+                //         Image(systemName: appState.osteotomyPlanes.allSatisfy { $0.isVisible } ? "eye" : "eye.slash")
+                //     }
+                //     .buttonStyle(.bordered)
+                    
+                //     Button(action: {
+                //         if appState.osteotomyPlanes.count > 1 {
+                //             appState.osteotomyPlanes.removeLast()
+                //         }
+                //     }) {
+                //         Image(systemName: "minus")
+                //     }
+                //     .buttonStyle(.bordered)
+                //     .disabled(appState.osteotomyPlanes.count <= 1)
+                    
+                //     Button(action: {
+                //         let modelPosition = appState.currentModelPosition
+                        
+                //         // randomise
+                //         let planeCount = appState.osteotomyPlanes.count
+                //         let angle = Float(planeCount) * Float.pi / 3.0  
+                //         let radius: Float = 0.3  
+                        
+                //         let offsetX = cos(angle) * radius
+                //         let offsetZ = sin(angle) * radius
+                //         let offsetY = Float.random(in: -0.1...0.1)  
+                //         let spawnPosition = modelPosition + [offsetX, offsetY, offsetZ]
+                        
+                //         print("🔵 Creating new plane at position: \(spawnPosition)")
+                        
+                //         appState.osteotomyPlanes.append(
+                //             OstoetomyPlan(position: spawnPosition, rotation: simd_quatf(angle: 0, axis: [0,1,0]))
+                //         )
+                //     }) {
+                //         Image(systemName: "plus")
+                //     }
+                //     .buttonStyle(.bordered)
+                // }
                 
                 Spacer()
                 

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import RealityKit
+import RealityKitContent
 
 @MainActor
 class AppState: ObservableObject {
@@ -19,6 +20,11 @@ class AppState: ObservableObject {
 
     @Published var selectedCaseGroup: LoadedCaseGroup?
     @Published var osteotomyPlanes: [OstoetomyPlan] = []
+    
+    // MARK: - Raycast Support
+    var mandibleModelEntity: ModelEntity?
+    var realityViewContent: RealityViewContent?
+    var mandibleAnchorWorldPosition: SIMD3<Float> = SIMD3<Float>(0, 1.5, -2)
     
     enum ImmersiveSpaceState {
         case closed
@@ -76,6 +82,26 @@ class AppState: ObservableObject {
         dismissWindow(id: "controls")
         controlsWindowState = .closed
     }
+    
+    // MARK: - Raycast Functions
+    func performMandibleRaycast() {
+        guard let content = realityViewContent else {
+            print("❌ No RealityView content available for raycast")
+            return
+        }
+        
+        Gestures.performMandibleRaycast(
+            modelEntity: mandibleModelEntity,
+            content: content,
+            mandibleAnchorWorldPosition: mandibleAnchorWorldPosition
+        )
+    }
+    
+    func setMandibleReferences(modelEntity: ModelEntity?, content: RealityViewContent, anchorPosition: SIMD3<Float>) {
+        self.mandibleModelEntity = modelEntity
+        self.realityViewContent = content
+        self.mandibleAnchorWorldPosition = anchorPosition
+    }
 }
 
 @main
@@ -99,9 +125,6 @@ struct developmentVRApp: App {
                 .onAppear {
                     appState.immersiveSpaceState = .open
                     appState.isControlWindowOpened = true
-                    if appState.osteotomyPlanes.isEmpty {
-                        appState.osteotomyPlanes.append(OstoetomyPlan(position: appState.currentModelPosition, rotation: simd_quatf(angle: 0, axis: [0,1,0])))
-                    }
                 }
                 .onDisappear {
                     appState.immersiveSpaceState = .closed

@@ -1,5 +1,5 @@
 //
-//  CaseGroupLoader.swift
+//  Gesture.swift
 //  developmentVR
 //
 //  Created by HARES on 9/15/25.
@@ -42,87 +42,110 @@ struct Gestures {
         SpatialTapGesture()
             .onEnded { value in
                 print("Tap gesture ended.")
-                guard let mandible = modelEntity.wrappedValue,
-                      let scene = mandible.scene else {
-                    print("ERROR: Mandible model or scene not available.")
-                    return
-                }
-                print("Mandible and scene are available.")
-
-                let tapLocation3D = value.location3D
-                let tapLocation = SIMD3<Float>(Float(tapLocation3D.x), Float(tapLocation3D.y), Float(tapLocation3D.z))
-                print("Tap location 3D: \(tapLocation3D)")
-                print("Tap location (SIMD3): \(tapLocation)")
+            }
+    }
+    
+    static func performMandibleRaycast(modelEntity: ModelEntity?, content: RealityViewContent, mandibleAnchorWorldPosition: SIMD3<Float>) {
+        guard let mandible = modelEntity else {
+            print("❌ No mandible model entity found")
+            return
+        }
+        
+        mandible.generateCollisionShapes(recursive: true)
+        
+        let bounds = mandible.visualBounds(relativeTo: nil)
+        let actualMandibleCenter = bounds.center
+        
+        print("🎯 Mandible actual center: \(actualMandibleCenter)")
+        print("🎯 Mandible bounds extents: \(bounds.extents)")
+        let rayConfigs: [(origin: SIMD3<Float>, direction: SIMD3<Float>)] = [
+            // Ray from above center
+            (
+                origin: actualMandibleCenter + SIMD3<Float>(0, bounds.extents.y * 0.8, 0),
+                direction: SIMD3<Float>(0, -1, 0)
+            ),
+            // Ray from left side
+            (
+                origin: actualMandibleCenter + SIMD3<Float>(-bounds.extents.x * 0.8, 0, 0),
+                direction: SIMD3<Float>(1, 0, 0)
+            ),
+            // Ray from right side
+            (
+                origin: actualMandibleCenter + SIMD3<Float>(bounds.extents.x * 0.8, 0, 0),
+                direction: SIMD3<Float>(-1, 0, 0)
+            ),
+            // Ray from front
+            (
+                origin: actualMandibleCenter + SIMD3<Float>(0, 0, bounds.extents.z * 0.8),
+                direction: SIMD3<Float>(0, 0, -1)
+            ),
+            // Ray from back
+            (
+                origin: actualMandibleCenter + SIMD3<Float>(0, 0, -bounds.extents.z * 0.8),
+                direction: SIMD3<Float>(0, 0, 1)
+            )
+        ]
+        
+        var planesCreated = 0
+        
+        for (index, config) in rayConfigs.enumerated() {
+            let rayOrigin = config.origin
+            let rayDirection = normalize(config.direction)
+            
+            print("🔫 Ray \(index + 1): Origin=\(rayOrigin), Direction=\(rayDirection)")
+            
+            if let scene = content.entities.first?.scene {
+                let rayEndPoint = rayOrigin + rayDirection * 2.0
+                let raycastResults = scene.raycast(from: rayOrigin, to: rayEndPoint)
                 
-                // In an immersive space, the camera is at the origin of the scene.
-                let cameraPosition = SIMD3<Float>.zero
-                print("Camera position: \(cameraPosition)")
+                print("🎯 Scene raycast found \(raycastResults.count) hits for ray \(index + 1)")
                 
-                // Calculate a direction vector from camera to tap location
-                let direction = normalize(tapLocation - cameraPosition)
-                // Extend the ray to a reasonable distance (e.g., 1 meter)
-                // let rayEndPoint = cameraPosition + direction * 1.0
-                let rayEndPoint = cameraPosition + direction
-                print("Raycast from cameraPosition: \(cameraPosition) to rayEndPoint: \(rayEndPoint)")
-
-                let raycastResults = scene.raycast(from: cameraPosition, to: rayEndPoint, query: .nearest, mask: .all)
-                print("Raycast performed. Number of results: \(raycastResults.count)")
-
-                if let result = raycastResults.first {
-                    print("First raycast result entity: \(result.entity.name)")
-                    if result.entity == mandible {
-                        print("Raycast hit the mandible!")
-                        
-                        let worldHitPosition = result.position
-                        let worldNormal = result.normal
-                        print("World hit position (original): \(worldHitPosition)")
-                        print("World hit normal: \(worldNormal)")
-                        
-                        // Get the actual scale - check if the mandible itself is scaled or its parent
-                        var actualScale: Float = 1.0
-                        if let parent = mandible.parent {
-                            // If mandible has a parent that's scaled, use parent's scale
-                            actualScale = parent.scale.x
-                            print("Using parent scale: \(actualScale)")
-                        } else {
-                            // Otherwise use mandible's own scale
-                            actualScale = mandible.scale.x
-                            print("Using mandible scale: \(actualScale)")
+                // Look for hit on the mandible specifically
+                if let hit = raycastResults.first(where: { result in
+                    var entity: Entity? = result.entity
+                    while entity != nil {
+                        if entity === mandible {
+                            return true
                         }
-                        
-                        // Transform the hit position to account for the mandible's scaling
-                        // First, get position relative to mandible anchor
-                        let relativeHitPosition = worldHitPosition - mandibleAnchorWorldPosition
-                        // Scale it down to match the visual representation
-                        let scaledRelativePosition = relativeHitPosition * actualScale
-                        // Transform back to world coordinates
-                        let scaledWorldHitPosition = mandibleAnchorWorldPosition + scaledRelativePosition
-                        
-                        print("Scaled world hit position: \(scaledWorldHitPosition)")
-                        
-                        // Place the plane exactly at the scaled hit position on the surface
-                        // Only add a tiny offset (0.001m = 1mm) to prevent z-fighting
-                        let offset: Float = 0.001 
-                        let planeWorldPosition = scaledWorldHitPosition + worldNormal * offset
-                        
-                        print("Mandible anchor world position (passed): \(mandibleAnchorWorldPosition)")
-                        print("Plane world position: \(planeWorldPosition)")
-                        
-                        // Create an OstoetomyPlan and add it to appState
-                        // Fix: RealityKit plane mesh has normal pointing in Y direction (0, 1, 0), not Z direction
-                        let newPlane = OstoetomyPlan(position: planeWorldPosition, rotation: simd_quatf(from: SIMD3<Float>(1, 0, 0), to: worldNormal))
-                        
-                        Task { @MainActor in
-                            appState.osteotomyPlanes.append(newPlane)
-                            print("Created OstoetomyPlan and added to appState.osteotomyPlanes at world position: \(planeWorldPosition)")
-                        }
-                    } else {
-                        print("Raycast hit an entity other than the mandible: \(result.entity.name)")
+                        entity = entity?.parent
                     }
+                    return false
+                }) {
+                    let hitPosition = hit.position
+                    let surfaceNormal = hit.normal
+                    let plane = ModelEntity(
+                        mesh: .generatePlane(width: 0.015, height: 0.015),
+                        materials: [SimpleMaterial(color: .blue.withAlphaComponent(0.9), isMetallic: false)]
+                    )
+                    let quat = simd_quatf(from: SIMD3<Float>(0, 0, 1), to: surfaceNormal)
+                    plane.orientation = quat
+                    
+                    let planeAnchor = AnchorEntity(world: hitPosition)
+                    planeAnchor.addChild(plane)
+                    content.add(planeAnchor)
+                    
+                    planesCreated += 1
+                    print("✅ RAYCAST HIT! Created plane \(index + 1) at: \(hitPosition) with normal: \(surfaceNormal)")
                 } else {
-                    print("Raycast did not hit any entity.")
+                    print("⚠️ No mandible hit detected for ray \(index + 1)")
+                    if let anyHit = raycastResults.first {
+                        let plane = ModelEntity(
+                            mesh: .generatePlane(width: 0.015, height: 0.015),
+                            materials: [SimpleMaterial(color: .orange.withAlphaComponent(0.7), isMetallic: false)]
+                        )
+                        
+                        let planeAnchor = AnchorEntity(world: anyHit.position)
+                        planeAnchor.addChild(plane)
+                        content.add(planeAnchor)
+                        
+                        planesCreated += 1
+                        print("🔶 SCENE HIT! Created fallback plane \(index + 1) at: \(anyHit.position)")
+                    }
                 }
             }
+        }
+        
+        print("🎯 Raycast complete! Created \(planesCreated) planes")
     }
     /*
     // Pinch to scale (disabled for now)

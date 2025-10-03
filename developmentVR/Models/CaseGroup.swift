@@ -21,10 +21,3 @@ struct LoadedCaseGroup: Identifiable {
     let usdzEntity: Entity?
     let usdzURL: URL?
 }
-
-struct OstoetomyPlan: Identifiable {
-    let id = UUID()
-    var position: SIMD3<Float>
-    var rotation: simd_quatf
-    var isVisible: Bool = true
-}

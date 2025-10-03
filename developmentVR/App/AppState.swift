@@ -19,12 +19,6 @@ class AppState: ObservableObject {
     @Published var controlsWindowState: WindowState = .closed
 
     @Published var selectedCaseGroup: LoadedCaseGroup?
-    @Published var osteotomyPlanes: [OstoetomyPlan] = []
-    
-    // MARK: - Raycast Support
-    var mandibleModelEntity: ModelEntity?
-    var realityViewContent: RealityViewContent?
-    var mandibleAnchorWorldPosition: SIMD3<Float> = SIMD3<Float>(0, 1.5, -2)
     
     enum ImmersiveSpaceState {
         case closed
@@ -81,26 +75,6 @@ class AppState: ObservableObject {
     func closeControlsWindow(dismissWindow: DismissWindowAction) async {
         dismissWindow(id: "controls")
         controlsWindowState = .closed
-    }
-    
-    // MARK: - Raycast Functions
-    func performMandibleRaycast() {
-        guard let content = realityViewContent else {
-            print("❌ No RealityView content available for raycast")
-            return
-        }
-        
-        Gestures.performMandibleRaycast(
-            modelEntity: mandibleModelEntity,
-            content: content,
-            mandibleAnchorWorldPosition: mandibleAnchorWorldPosition
-        )
-    }
-    
-    func setMandibleReferences(modelEntity: ModelEntity?, content: RealityViewContent, anchorPosition: SIMD3<Float>) {
-        self.mandibleModelEntity = modelEntity
-        self.realityViewContent = content
-        self.mandibleAnchorWorldPosition = anchorPosition
     }
 }
 

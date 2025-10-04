@@ -50,6 +50,59 @@ extension Entity {
         modelEntity.position.x = -bounds.center.x
         return entity
     }
+    
+    static func createCuttingPlane(at position: SIMD3<Float>, normal: SIMD3<Float>, size: Float = 0.1) -> Entity {
+        let entity = Entity()
+        let mesh = MeshResource.generatePlane(width: size, depth: size)
+        
+        var material = UnlitMaterial(color: .systemYellow)
+        material.color.tint = UIColor.systemYellow.withAlphaComponent(0.6)
+        material.faceCulling = .none  
+        material.blending = .transparent(opacity: .init(floatLiteral: 0.6))
+        
+        let planeEntity = ModelEntity(mesh: mesh, materials: [material])
+        planeEntity.name = "CuttingPlane"
+        entity.position = position
+        
+        let up = SIMD3<Float>(0, 1, 0)
+        let right = normalize(cross(up, normal))
+        let actualUp = cross(normal, right)
+        
+        let rotationMatrix = float3x3(right, actualUp, normal)
+        entity.transform.rotation = simd_quatf(rotationMatrix)
+        
+        entity.addChild(planeEntity)
+        
+        let centerIndicator = ModelEntity(
+            mesh: .generateSphere(radius: 0.005),
+            materials: [SimpleMaterial(color: .red, isMetallic: false)]
+        )
+        entity.addChild(centerIndicator)
+
+        let axes = createAxes(axisScale: 0.02, alpha: 0.8)
+        entity.addChild(axes)
+        
+        return entity
+    }
+    
+    static func createHitDot(at position: SIMD3<Float>, color: UIColor = .green) -> Entity {
+        let entity = Entity()
+        let dot = ModelEntity(
+            mesh: .generateSphere(radius: 0.01),
+            materials: [SimpleMaterial(color: color, isMetallic: false)]
+        )
+        dot.name = "HitDot"
+        entity.position = position
+        entity.addChild(dot)
+        
+        // Add a small text label with coordinates
+        let coordText = String(format: "(%.2f, %.2f, %.2f)", position.x, position.y, position.z)
+        let textEntity = createText(coordText, height: 0.02)
+        textEntity.position.y += 0.03
+        entity.addChild(textEntity)
+        
+        return entity
+    }
 }
 
 
@@ -68,19 +121,15 @@ class ObjectAnchorVisualization: ObservableObject {
     init(usdzURL: URL, scale: Float = 1.0) async throws {
         let loadedModel = try await ModelEntity(contentsOf: usdzURL)
         loadedModel.name = usdzURL.lastPathComponent
-        // Model is loaded at original scale - scaling will be applied to the parent entity
         self.anchorId = UUID()
         self.modelEntity = loadedModel
         
         let bounds = loadedModel.visualBounds(relativeTo: nil)
         boundingBoxOutline = BoundingBoxOutline(bounds: bounds, color: .yellow, alpha: alpha)
-        
         let entity = Entity()
-        
         let originVisualization = Entity.createAxes(axisScale: axisScale, alpha: 0.7)
         
         loadedModel.components.set(OpacityComponent(opacity: 0.7))
-        // Enable input for gestures
         loadedModel.components.set(InputTargetComponent())
         loadedModel.generateCollisionShapes(recursive: true)
         entity.addChild(loadedModel)

@@ -17,18 +17,27 @@ struct OstoetomyPlanView: View {
     @State private var lastDragTranslation: CGSize = .zero
     @State private var currentAngle: Float = 0
     @State private var currentScale: Float = 0.1
+    @State private var cuttingPlanes: [Entity] = []
+    @State private var hitDots: [Entity] = []
+    @State private var rootContentEntity: Entity?
 
     var body: some View {
         RealityView { content in
+            let rootEntity = Entity()
+            content.add(rootEntity)
+            rootContentEntity = rootEntity
+            
             if let entity = try? await Entity(named: "Mandible", in: realityKitContentBundle) {
                 if let mandible = entity as? ModelEntity {
                     let mandibleAnchor = AnchorEntity(world: [0, 1.5, -2])
                     mandibleAnchor.addChild(mandible)
                     mandible.scale = [currentScale, currentScale, currentScale]
-                    //facing right
                     mandible.transform.rotation = simd_quatf(angle: -Float.pi / 2, axis: [0, 1, 0])
                     
-                    content.add(mandibleAnchor)
+                    mandible.components.set(InputTargetComponent())
+                    mandible.generateCollisionShapes(recursive: true)
+                    
+                    rootEntity.addChild(mandibleAnchor)
                     mandibleModelEntity = mandible
                     mandibleAnchorWorldPosition = SIMD3<Float>(0, 1.5, -2)
                 }
@@ -42,30 +51,42 @@ struct OstoetomyPlanView: View {
                         visualization.entity.scale = [currentScale, currentScale, currentScale]
                         visualization.entity.transform.rotation = simd_quatf(angle: -Float.pi / 2, axis: [0, 1, 0])
                         
-                        content.add(anchor)
+                        if let model = visualization.modelEntity {
+                            model.components.set(InputTargetComponent())
+                            model.generateCollisionShapes(recursive: true)
+                        }
+                        
+                        rootEntity.addChild(anchor)
                         objectAnchorVisualization = visualization
                         mandibleModelEntity = visualization.modelEntity
                         mandibleAnchorWorldPosition = SIMD3<Float>(0, 1.5, -2)
                     } catch {
                         print("Error loading or creating visualization: \(error)")
                         if let fallbackScene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
-                            content.add(fallbackScene)
+                            rootEntity.addChild(fallbackScene)
                         }
                     }
                 } else {
                     if let fallbackScene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
-                        content.add(fallbackScene)
+                        rootEntity.addChild(fallbackScene)
                     }
                 }
             }
             
         } update: { content in
-            // No plane rendering logic here
+            // Update existing cutting planes if needed
         }
-        .simultaneousGesture(Gestures.tapGesture(modelEntity: Binding(
-            get: { mandibleModelEntity },
-            set: { _ in }
-        ), appState: appState, mandibleAnchorWorldPosition: mandibleAnchorWorldPosition))
+        .simultaneousGesture(Gestures.tapGesture(
+            modelEntity: Binding(
+                get: { mandibleModelEntity },
+                set: { _ in }
+            ), 
+            appState: appState, 
+            mandibleAnchorWorldPosition: mandibleAnchorWorldPosition
+        ) { hitInfo in
+            spawnHitDot(at: hitInfo.position)
+            spawnCuttingPlane(at: hitInfo.position, normal: hitInfo.normal)
+        })
         .simultaneousGesture(Gestures.dragGesture(modelEntity: Binding(
             get: { objectAnchorVisualization?.modelEntity },
             set: { _ in }
@@ -74,5 +95,45 @@ struct OstoetomyPlanView: View {
             get: { objectAnchorVisualization?.modelEntity },
             set: { _ in }
         ), currentAngle: $currentAngle))
+    }
+    
+    private func spawnHitDot(at position: SIMD3<Float>) {
+        print("🔴 Spawning hit dot at position: \(position)")
+        
+        let hitDot = Entity.createHitDot(at: position, color: .green)
+        if let rootEntity = rootContentEntity {
+            rootEntity.addChild(hitDot)
+            hitDots.append(hitDot)
+            print("✅ Added hit dot to scene. Total dots: \(hitDots.count)")
+        } else {
+            print("❌ Failed to add hit dot - no root entity")
+        }
+    }
+    
+    private func spawnCuttingPlane(at position: SIMD3<Float>, normal: SIMD3<Float>) {
+        print("🎯 Spawning cutting plane at position: \(position), normal: \(normal)")
+        
+        // Check for invalid normal values
+        if normal.x.isNaN || normal.y.isNaN || normal.z.isNaN {
+            print("❌ Invalid normal detected, using default upward normal")
+            let safeNormal = SIMD3<Float>(0, 1, 0)
+            let cuttingPlane = Entity.createCuttingPlane(at: position, normal: safeNormal, size: 0.2)
+            
+            if let rootEntity = rootContentEntity {
+                rootEntity.addChild(cuttingPlane)
+                cuttingPlanes.append(cuttingPlane)
+                print("✅ Added cutting plane with safe normal to scene. Total planes: \(cuttingPlanes.count)")
+            }
+            return
+        }
+        
+        let cuttingPlane = Entity.createCuttingPlane(at: position, normal: normal, size: 0.2)
+        if let rootEntity = rootContentEntity {
+            rootEntity.addChild(cuttingPlane)
+            cuttingPlanes.append(cuttingPlane)
+            print("✅ Added cutting plane to scene. Total planes: \(cuttingPlanes.count)")
+        } else {
+            print("❌ Failed to add cutting plane - no root entity")
+        }
     }
 }

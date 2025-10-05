@@ -61,6 +61,7 @@ struct HomeView: View {
                         model
                             .resizable()
                             .aspectRatio(contentMode: .fit)
+                            .scaleEffect(0.5)
                             .offset(y: -50)
                     } placeholder: {
                         ProgressView()

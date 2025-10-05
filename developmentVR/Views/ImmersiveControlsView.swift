@@ -40,27 +40,29 @@ struct ImmersiveControlsView: View {
                     .padding(.horizontal)
                     
                     Spacer()
-                    
-                    HStack(spacing: 40) {
-                        Button(action: { 
-                            appState.rulerManager.toggleRulerMode()
-                        }) {
-                            Image(systemName: appState.rulerManager.isRulerMode ? "ruler.fill" : "ruler")
-                                .font(.system(size: 30))
-                                .foregroundColor(appState.rulerManager.isRulerMode ? .blue : .gray)
+                    //controls
+                    HStack {
+                        HStack(spacing: 40) {
+                            Button(action: { 
+                                appState.rulerManager.toggleRulerMode()
+                            }) {
+                                Image(systemName: appState.rulerManager.isRulerMode ? "ruler.fill" : "ruler")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(appState.rulerManager.isRulerMode ? .blue : .gray)
+                            }
+                            
+                            Button(action: {
+                                appState.rulerManager.toggleRulerVisibility()
+                            }) {
+                                Image(systemName: appState.rulerManager.isRulerVisible ? "eye.fill" : "eye.slash.fill")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(appState.rulerManager.isRulerVisible ? .green : .red)
+                            }
                         }
                         
-                        Button(action: {
-                            appState.rulerManager.toggleRulerVisibility()
-                        }) {
-                            Image(systemName: appState.rulerManager.isRulerVisible ? "eye.fill" : "eye.slash.fill")
-                                .font(.system(size: 30))
-                                .foregroundColor(appState.rulerManager.isRulerVisible ? .green : .red)
-                        }
+                        Spacer()
                     }
-                    .padding(30)
-                    .background(Color(.systemBackground).opacity(0.8))
-                    .cornerRadius(20)
+                    .padding(.horizontal)
                     
                     Spacer()
                     

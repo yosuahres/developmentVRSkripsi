@@ -30,10 +30,10 @@ struct ImmersiveControlsView: View {
                         Spacer()
                         VStack(alignment: .trailing, spacing: 4) {
                             Text(selectedCase.group.name)
-                                .font(.title2)
+                                .font(.extraLargeTitle2)
                                 .fontWeight(.semibold)
                             Text(selectedCase.group.description)
-                                .font(.caption)
+                                .font(.largeTitle)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -47,7 +47,7 @@ struct ImmersiveControlsView: View {
                                 appState.rulerManager.toggleRulerMode()
                             }) {
                                 Image(systemName: appState.rulerManager.isRulerMode ? "ruler.fill" : "ruler")
-                                    .font(.system(size: 30))
+                                    .font(.system(size: 80))
                                     .foregroundColor(appState.rulerManager.isRulerMode ? .blue : .gray)
                             }
                             
@@ -55,7 +55,7 @@ struct ImmersiveControlsView: View {
                                 appState.rulerManager.toggleRulerVisibility()
                             }) {
                                 Image(systemName: appState.rulerManager.isRulerVisible ? "eye.fill" : "eye.slash.fill")
-                                    .font(.system(size: 30))
+                                    .font(.system(size: 80))
                                     .foregroundColor(appState.rulerManager.isRulerVisible ? .green : .red)
                             }
                         }
@@ -75,11 +75,12 @@ struct ImmersiveControlsView: View {
                         }
                     }
                     .buttonStyle(.bordered)
+                    .controlSize(.large)
                 }
             }
         }
         .padding()
-        .frame(width: 700, height: 800)
+        .frame(width: 1100, height: 1200)
         .glassBackgroundEffect()
     }
 }

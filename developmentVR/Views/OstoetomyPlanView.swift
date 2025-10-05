@@ -32,7 +32,19 @@ struct OstoetomyPlanView: View {
                let usdzURL = selectedCaseGroup.usdzURL {
                 do {
                     let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, scale: 1.0)
-                    let anchor = AnchorEntity(world: [0, 1.5, -2])
+                    
+                    let headAnchor = AnchorEntity(.head)
+                    content.add(headAnchor) 
+                    
+                    // spawn model in front of user
+                    let userTransform = headAnchor.transform
+                    let userForward = userTransform.rotation.act(SIMD3<Float>(x: 0, y: 0, z: -1))
+                    let spawnDistance: Float = 10.0
+                    let spawnHeight: Float = 5.0
+                    let spawnPosition = userTransform.translation + (userForward * spawnDistance) + SIMD3<Float>(x: 0, y: spawnHeight, z: 0)
+                    
+                    // look left rotate
+                    let anchor = AnchorEntity(world: spawnPosition)
                     anchor.addChild(visualization.entity)
                     visualization.entity.transform.rotation = simd_quatf(angle: -Float.pi / 2, axis: [0, 1, 0])
                     
@@ -44,7 +56,7 @@ struct OstoetomyPlanView: View {
                     rootEntity.addChild(anchor)
                     objectAnchorVisualization = visualization
                     mandibleModelEntity = visualization.modelEntity
-                    mandibleAnchorWorldPosition = SIMD3<Float>(0, 1.5, -2)
+                    mandibleAnchorWorldPosition = spawnPosition
                 } catch {
                     print("Error loading or creating visualization: \(error)")
                     if let fallbackScene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {

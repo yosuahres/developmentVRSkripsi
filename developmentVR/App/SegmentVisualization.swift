@@ -51,9 +51,9 @@ extension Entity {
         return entity
     }
     
-    static func createCuttingPlane(at position: SIMD3<Float>, normal: SIMD3<Float>, size: Float = 0.1) -> Entity {
+    static func createCuttingPlane(at position: SIMD3<Float>, normal: SIMD3<Float>, size: Float = 0.1, scale: Float = 1.0) -> Entity {
         let entity = Entity()
-        let mesh = MeshResource.generatePlane(width: size, depth: size)
+        let mesh = MeshResource.generatePlane(width: size * scale, depth: size * scale)
         
         var material = UnlitMaterial(color: .systemYellow)
         material.color.tint = UIColor.systemYellow.withAlphaComponent(0.6)
@@ -74,21 +74,21 @@ extension Entity {
         entity.addChild(planeEntity)
         
         let centerIndicator = ModelEntity(
-            mesh: .generateSphere(radius: 0.005),
+            mesh: .generateSphere(radius: 0.005 * scale),
             materials: [SimpleMaterial(color: .red, isMetallic: false)]
         )
         entity.addChild(centerIndicator)
 
-        let axes = createAxes(axisScale: 0.02, alpha: 0.8)
+        let axes = createAxes(axisScale: 0.02 * scale, alpha: 0.8)
         entity.addChild(axes)
         
         return entity
     }
     
-    static func createHitDot(at position: SIMD3<Float>, color: UIColor = .green) -> Entity {
+    static func createHitDot(at position: SIMD3<Float>, color: UIColor = .green, scale: Float = 1.0) -> Entity {
         let entity = Entity()
         let dot = ModelEntity(
-            mesh: .generateSphere(radius: 0.01),
+            mesh: .generateSphere(radius: 0.01 * scale),
             materials: [SimpleMaterial(color: color, isMetallic: false)]
         )
         dot.name = "HitDot"
@@ -97,8 +97,8 @@ extension Entity {
         
         // Add a small text label with coordinates
         let coordText = String(format: "(%.2f, %.2f, %.2f)", position.x, position.y, position.z)
-        let textEntity = createText(coordText, height: 0.02)
-        textEntity.position.y += 0.03
+        let textEntity = createText(coordText, height: 0.02 * scale)
+        textEntity.position.y += 0.03 * scale
         entity.addChild(textEntity)
         
         return entity

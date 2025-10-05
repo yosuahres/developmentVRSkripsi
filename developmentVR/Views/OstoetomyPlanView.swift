@@ -13,11 +13,11 @@ struct OstoetomyPlanView: View {
     @ObservedObject var appState: AppState
     @State private var objectAnchorVisualization: ObjectAnchorVisualization?
     @State private var mandibleModelEntity: ModelEntity?
+    @State private var headAnchorTransform: Transform = .identity 
     @State private var mandibleAnchorWorldPosition: SIMD3<Float> = .zero 
     @State private var lastDragTranslation: CGSize = .zero
     @State private var currentAngle: Float = 0
     @State private var cuttingPlanes: [Entity] = []
-    @State private var hitDots: [Entity] = []
     
     private let realWorldScale: Float = 100.0
 
@@ -34,7 +34,8 @@ struct OstoetomyPlanView: View {
                     let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, scale: 1.0)
                     
                     let headAnchor = AnchorEntity(.head)
-                    content.add(headAnchor) 
+                    content.add(headAnchor)
+                    headAnchorTransform = headAnchor.transform 
                     
                     // spawn model in front of user
                     let userTransform = headAnchor.transform
@@ -72,21 +73,6 @@ struct OstoetomyPlanView: View {
         } update: { content in
             // Update existing cutting planes if needed
         }
-        .simultaneousGesture(Gestures.tapGesture(
-            modelEntity: Binding(
-                get: { mandibleModelEntity },
-                set: { _ in }
-            ), 
-            appState: appState, 
-            mandibleAnchorWorldPosition: mandibleAnchorWorldPosition
-        ) { hitInfo in
-            if appState.rulerManager.isRulerMode {
-                handleRulerTap(at: hitInfo.position)
-            } else {
-                spawnHitDot(at: hitInfo.position)
-                spawnCuttingPlane(at: hitInfo.position, normal: hitInfo.normal)
-            }
-        })
         .simultaneousGesture(Gestures.dragGesture(modelEntity: Binding(
             get: { objectAnchorVisualization?.modelEntity },
             set: { _ in }
@@ -106,63 +92,5 @@ struct OstoetomyPlanView: View {
                 }
             }
         }
-    }
-    
-    private func spawnHitDot(at position: SIMD3<Float>) {
-        print("🔴 Spawning hit dot at position: \(position)")
-        
-        let hitDot = Entity.createHitDot(at: position, color: .green)
-        if let rootEntity = appState.rootContentEntity {
-            rootEntity.addChild(hitDot)
-            hitDots.append(hitDot)
-            print("✅ Added hit dot to scene. Total dots: \(hitDots.count)")
-        } else {
-            print("❌ Failed to add hit dot - no root entity")
-        }
-    }
-    
-    private func spawnCuttingPlane(at position: SIMD3<Float>, normal: SIMD3<Float>) {
-        print("🎯 Spawning cutting plane at position: \(position), normal: \(normal)")
-        
-        appState.planePositions.append(position)
-        
-        if normal.x.isNaN || normal.y.isNaN || normal.z.isNaN {
-            print("❌ Invalid normal detected, using default upward normal")
-            let safeNormal = SIMD3<Float>(0, 1, 0)
-            let cuttingPlane = Entity.createCuttingPlane(at: position, normal: safeNormal, size: 0.2)
-            
-            if let rootEntity = appState.rootContentEntity {
-                rootEntity.addChild(cuttingPlane)
-                cuttingPlanes.append(cuttingPlane)
-                print("✅ Added cutting plane with safe normal to scene. Total planes: \(cuttingPlanes.count)")
-            }
-            return
-        }
-        
-        let cuttingPlane = Entity.createCuttingPlane(at: position, normal: normal, size: 0.2)
-        if let rootEntity = appState.rootContentEntity {
-            rootEntity.addChild(cuttingPlane)
-            cuttingPlanes.append(cuttingPlane)
-            print("✅ Added cutting plane to scene. Total planes: \(cuttingPlanes.count)")
-            
-            if appState.planePositions.count >= 2 {
-                appState.rulerManager.createRulerBetweenLastTwoPlanes(planePositions: appState.planePositions, rootEntity: rootEntity)
-            }
-        } else {
-            print("❌ Failed to add cutting plane - no root entity")
-        }
-    }
-    
-    private func handleRulerTap(at position: SIMD3<Float>) {
-        guard let rootEntity = appState.rootContentEntity else {
-            print("❌ No root entity available for ruler creation")
-            return
-        }
-        
-        appState.rulerManager.handleRulerTap(
-            at: position, 
-            planePositions: appState.planePositions, 
-            rootEntity: rootEntity
-        )
     }
 }

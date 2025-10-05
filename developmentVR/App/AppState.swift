@@ -20,6 +20,11 @@ class AppState: ObservableObject {
 
     @Published var selectedCaseGroup: LoadedCaseGroup?
     
+    // Ruler and measurement state
+    @Published var rulerManager = RulerManager()
+    @Published var planePositions: [SIMD3<Float>] = []
+    @Published var rootContentEntity: Entity?
+    
     enum ImmersiveSpaceState {
         case closed
         case inTransition

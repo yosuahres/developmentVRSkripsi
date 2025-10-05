@@ -149,6 +149,7 @@ class RulerVisualization {
 class RulerManager: ObservableObject {
     @Published var rulers: [Entity] = []
     @Published var isRulerMode: Bool = false
+    @Published var isRulerVisible: Bool = true
     @Published var selectedPlaneIndex: Int? = nil
     
     private let realWorldScale: Float
@@ -189,6 +190,19 @@ class RulerManager: ObservableObject {
         isRulerMode.toggle()
         selectedPlaneIndex = nil
         print(isRulerMode ? "📏 Ruler mode enabled" : "🎯 Plane creation mode enabled")
+    }
+    
+    func toggleRulerVisibility() {
+        isRulerVisible.toggle()
+        setRulersVisibility(isRulerVisible)
+        print(isRulerVisible ? "👁️ Rulers are now visible" : "🙈 Rulers are now hidden")
+    }
+    
+    func setRulersVisibility(_ visible: Bool) {
+        for ruler in rulers {
+            ruler.isEnabled = visible
+        }
+        isRulerVisible = visible
     }
     
     func findNearestPlaneIndex(to position: SIMD3<Float>, in planePositions: [SIMD3<Float>]) -> Int {

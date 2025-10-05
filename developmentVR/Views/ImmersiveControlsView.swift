@@ -23,33 +23,61 @@ struct ImmersiveControlsView: View {
             content.add(anchor)
         }
         
-        VStack(spacing: 20) {
+        ZStack {
             if let selectedCase = appState.selectedCaseGroup {
-                Text("Currently Viewing:")
-                    .font(.headline)
-                Text(selectedCase.group.name)
-                    .font(.title2)
-                Text(selectedCase.group.description)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                
-                Divider()
-                
-                Spacer()
-                
-                Button("Close Immersive Space") {
-                    Task {
-                        await appState.closeControlsWindow(dismissWindow: dismissWindow)
-                        await dismissImmersiveSpace()
-                        appState.immersiveSpaceState = .closed
-                        openWindow(id: "main")
+                VStack(spacing: 20) {
+                    HStack {
+                        Spacer()
+                        VStack(alignment: .trailing, spacing: 4) {
+                            Text(selectedCase.group.name)
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                            Text(selectedCase.group.description)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
+                    .padding(.horizontal)
+                    
+                    Spacer()
+                    
+                    HStack(spacing: 40) {
+                        Button(action: { 
+                            appState.rulerManager.toggleRulerMode()
+                        }) {
+                            Image(systemName: appState.rulerManager.isRulerMode ? "ruler.fill" : "ruler")
+                                .font(.system(size: 30))
+                                .foregroundColor(appState.rulerManager.isRulerMode ? .blue : .gray)
+                        }
+                        
+                        Button(action: {
+                            appState.rulerManager.toggleRulerVisibility()
+                        }) {
+                            Image(systemName: appState.rulerManager.isRulerVisible ? "eye.fill" : "eye.slash.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(appState.rulerManager.isRulerVisible ? .green : .red)
+                        }
+                    }
+                    .padding(30)
+                    .background(Color(.systemBackground).opacity(0.8))
+                    .cornerRadius(20)
+                    
+                    Spacer()
+                    
+                    Button("Close") {
+                        Task {
+                            await appState.closeControlsWindow(dismissWindow: dismissWindow)
+                            await dismissImmersiveSpace()
+                            appState.immersiveSpaceState = .closed
+                            openWindow(id: "main")
+                        }
+                    }
+                    .buttonStyle(.bordered)
                 }
-                .buttonStyle(.bordered)
             }
         }
         .padding()
-        .frame(width: 500, height: 600)
+        .frame(width: 700, height: 800)
         .glassBackgroundEffect()
     }
 }

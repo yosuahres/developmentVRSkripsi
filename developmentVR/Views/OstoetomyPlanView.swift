@@ -38,8 +38,8 @@ struct OstoetomyPlanView: View {
                 // spawn models in front of user
                 let userTransform = headAnchor.transform
                 let userForward = userTransform.rotation.act(SIMD3<Float>(x: 0, y: 0, z: -1))
-                let spawnDistance: Float = 6.0 
-                let spawnHeight: Float = 2.0 
+                let spawnDistance: Float = 1.0
+                let spawnHeight: Float = 1.5
                 let spawnPosition = userTransform.translation + (userForward * spawnDistance) + SIMD3<Float>(x: 0, y: spawnHeight, z: 0)
                 
                 let parentAnchor = AnchorEntity(world: spawnPosition)
@@ -51,9 +51,9 @@ struct OstoetomyPlanView: View {
                 for (index, usdzEntity) in loadedGroup.usdzEntities.enumerated() {
                     if let _ = usdzEntity, let usdzURL = loadedGroup.usdzURLs[index] {
                         do {
-                            let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, scale: 1.0)
+                            let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, scale: 0.001) //convert to mm, idk what it should be
 
-                            // apply rotation
+                            // apply rotation look left
                             visualization.entity.transform.rotation = simd_quatf(angle: -Float.pi / 2, axis: [0, 1, 0])
 
                             if let model = visualization.modelEntity {
@@ -97,8 +97,6 @@ struct OstoetomyPlanView: View {
             }
             
         } update: { content in
-            // Update existing cutting planes if needed
-            // Update maxilla visibility
             if let selectedCaseGroup = appState.selectedCaseGroup,
                let loadedGroup = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroup.id }) {
                 for (index, usdzEntity) in loadedGroup.usdzEntities.enumerated() {

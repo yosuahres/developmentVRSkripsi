@@ -59,7 +59,7 @@ struct HomeView: View {
                 if selectedObject.usdzURLs.count >= 2,
                    let usdzURL1 = selectedObject.usdzURLs[0],
                    let usdzURL2 = selectedObject.usdzURLs[1] {
-                    HStack { // Reverted to HStack for side-by-side display
+                    HStack { 
                         Model3D(url: usdzURL1) { model in
                             model
                                 .resizable()

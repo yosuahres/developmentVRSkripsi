@@ -39,69 +39,62 @@ struct ImmersiveControlsView: View {
                     }
                     .padding(.horizontal)
                     
-                    Spacer()
                     //controls
-                    VStack(spacing: 40) { 
-                        //ruler toggle
-                        HStack(spacing: 40) {
-                            Button(action: {
-                                appState.rulerManager.toggleRulerMode()
-                            }) {
-                                Image(systemName: appState.rulerManager.isRulerMode ? "ruler.fill" : "ruler")
+                    HStack {
+                        VStack(spacing: 40) {
+                            HStack(spacing: 40) {
+                                Image(systemName: "ruler.fill")
                                     .font(.system(size: 80))
-                                    .foregroundColor(appState.rulerManager.isRulerMode ? .blue : .gray)
+                                    // .foregroundColor(self.appState.rulerManager.isRulerMode ? .blue : .gray)
+                                
+                                Button(action: {
+                                    self.appState.rulerManager.toggleRulerVisibility()
+                                }) {
+                                    Image(systemName: self.appState.rulerManager.isRulerVisible ? "eye.fill" : "eye.slash.fill")
+                                        .font(.system(size: 80))
+                                        .foregroundColor(self.appState.rulerManager.isRulerVisible ? .green : .red)
+                                }
                             }
                             
-                            Button(action: {
-                                appState.rulerManager.toggleRulerVisibility()
-                            }) {
-                                Image(systemName: appState.rulerManager.isRulerVisible ? "eye.fill" : "eye.slash.fill")
-                                    .font(.system(size: 80))
-                                    .foregroundColor(appState.rulerManager.isRulerVisible ? .green : .red)
-                            }
-                        }
-                        
-                        //maxilla toggle
-                        HStack(spacing: 40) { 
-                            Button(action: {
-                                appState.toggleMaxillaVisibility()
-                            }) {
-                                Image(systemName: appState.isMaxillaVisible ? "cube.fill" : "cube.slash.fill")
-                                    .font(.system(size: 80))
-                                    .foregroundColor(appState.isMaxillaVisible ? .orange : .gray)
-                            }
                             
-                            Button(action: {
-                                appState.toggleMaxillaVisibility()
-                            }) {
-                                Image(systemName: appState.isMaxillaVisible ? "eye.fill" : "eye.slash.fill") 
+                            HStack(spacing: 40) {
+                                Image(systemName: "cube.fill")
                                     .font(.system(size: 80))
-                                    .foregroundColor(appState.isMaxillaVisible ? .orange : .gray)
+                                    // .foregroundColor(self.appState.isMaxillaVisible ? .orange : .gray)
+                                
+                                Button(action: {
+                                    self.appState.toggleMaxillaVisibility()
+                                }) {
+                                    Image(systemName: self.appState.isMaxillaVisible ? "eye.fill" : "eye.slash.fill")
+                                        .font(.system(size: 80))
+                                        .foregroundColor(self.appState.isMaxillaVisible ? .orange : .gray)
+                                }
                             }
                         }
-
+                        Spacer() 
                     }
                     .padding(.horizontal)
                     
                     Spacer()
                     
-                    Spacer()
-                    
-                    Button("Close") {
-                        Task {
-                            await appState.closeControlsWindow(dismissWindow: dismissWindow)
-                            await dismissImmersiveSpace()
-                            appState.immersiveSpaceState = .closed
-                            openWindow(id: "main")
+                    HStack {
+                        Button("Close") {
+                            Task {
+                                await appState.closeControlsWindow(dismissWindow: dismissWindow)
+                                await dismissImmersiveSpace()
+                                appState.immersiveSpaceState = .closed
+                                openWindow(id: "main")
+                            }
                         }
+                        .buttonStyle(.bordered)
+                        .controlSize(.large)
+                        Spacer() 
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.large)
                 }
             }
         }
         .padding()
-        .frame(width: 1100, height: 1200)
+        .frame(width: 700, height: 800)
         .glassBackgroundEffect()
     }
 }

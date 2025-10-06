@@ -51,16 +51,20 @@ struct OstoetomyPlanView: View {
                 for (index, usdzEntity) in loadedGroup.usdzEntities.enumerated() {
                     if let _ = usdzEntity, let usdzURL = loadedGroup.usdzURLs[index] {
                         do {
-                            let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, scale: 1.0) 
-                            
+                            let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, scale: 1.0)
+
                             // apply rotation
                             visualization.entity.transform.rotation = simd_quatf(angle: -Float.pi / 2, axis: [0, 1, 0])
-                            
+
                             if let model = visualization.modelEntity {
                                 model.components.set(InputTargetComponent())
                                 model.generateCollisionShapes(recursive: true)
+
+                                if usdzURL.lastPathComponent.contains("Maxilla") {
+                                    model.isEnabled = appState.isMaxillaVisible
+                                }
                             }
-                            
+
                             parentAnchor.addChild(visualization.entity)
                             objectAnchorVisualizations.append(visualization)
                             modelEntities.append(visualization.modelEntity)
@@ -94,9 +98,20 @@ struct OstoetomyPlanView: View {
             
         } update: { content in
             // Update existing cutting planes if needed
+            // Update maxilla visibility
+            if let selectedCaseGroup = appState.selectedCaseGroup,
+               let loadedGroup = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroup.id }) {
+                for (index, usdzEntity) in loadedGroup.usdzEntities.enumerated() {
+                    if let model = modelEntities[index], let usdzURL = loadedGroup.usdzURLs[index] {
+                        if usdzURL.lastPathComponent.contains("Maxilla") {
+                            model.isEnabled = appState.isMaxillaVisible
+                        }
+                    }
+                }
+            }
         }
         .simultaneousGesture(Gestures.dragGesture(modelEntity: Binding(
-            get: { modelEntities.first ?? nil }, 
+            get: { modelEntities.first ?? nil },
             set: { _ in }
         ), lastTranslation: $lastDragTranslation))
         .simultaneousGesture(Gestures.rotationGesture(modelEntity: Binding(

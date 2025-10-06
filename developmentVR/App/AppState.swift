@@ -24,6 +24,7 @@ class AppState: ObservableObject {
     @Published var rulerManager = RulerManager()
     @Published var planePositions: [SIMD3<Float>] = []
     @Published var rootContentEntity: Entity?
+    @Published var isMaxillaVisible: Bool = true
     
     enum ImmersiveSpaceState {
         case closed
@@ -67,6 +68,10 @@ class AppState: ObservableObject {
 
     func didLeaveImmersiveSpace() {
         immersiveSpaceState = .closed
+    }
+    
+    func toggleMaxillaVisibility() {
+        isMaxillaVisible.toggle()
     }
     
     func openControlsWindow(openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) async {

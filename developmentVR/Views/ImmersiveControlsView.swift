@@ -41,9 +41,10 @@ struct ImmersiveControlsView: View {
                     
                     Spacer()
                     //controls
-                    HStack {
+                    VStack(spacing: 40) { 
+                        //ruler toggle
                         HStack(spacing: 40) {
-                            Button(action: { 
+                            Button(action: {
                                 appState.rulerManager.toggleRulerMode()
                             }) {
                                 Image(systemName: appState.rulerManager.isRulerMode ? "ruler.fill" : "ruler")
@@ -60,9 +61,29 @@ struct ImmersiveControlsView: View {
                             }
                         }
                         
-                        Spacer()
+                        //maxilla toggle
+                        HStack(spacing: 40) { 
+                            Button(action: {
+                                appState.toggleMaxillaVisibility()
+                            }) {
+                                Image(systemName: appState.isMaxillaVisible ? "cube.fill" : "cube.slash.fill")
+                                    .font(.system(size: 80))
+                                    .foregroundColor(appState.isMaxillaVisible ? .orange : .gray)
+                            }
+                            
+                            Button(action: {
+                                appState.toggleMaxillaVisibility()
+                            }) {
+                                Image(systemName: appState.isMaxillaVisible ? "eye.fill" : "eye.slash.fill") 
+                                    .font(.system(size: 80))
+                                    .foregroundColor(appState.isMaxillaVisible ? .orange : .gray)
+                            }
+                        }
+
                     }
                     .padding(.horizontal)
+                    
+                    Spacer()
                     
                     Spacer()
                     

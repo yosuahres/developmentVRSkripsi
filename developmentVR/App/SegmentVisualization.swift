@@ -125,7 +125,6 @@ class ObjectAnchorVisualization: ObservableObject {
         self.modelEntity = loadedModel
         
         let bounds = loadedModel.visualBounds(relativeTo: nil)
-        loadedModel.position = -bounds.center // Center the model
         boundingBoxOutline = BoundingBoxOutline(bounds: bounds, color: .yellow, alpha: alpha)
         let entity = Entity()
         let originVisualization = Entity.createAxes(axisScale: axisScale, alpha: 0.7)
@@ -134,7 +133,7 @@ class ObjectAnchorVisualization: ObservableObject {
         loadedModel.components.set(InputTargetComponent())
         loadedModel.generateCollisionShapes(recursive: true)
         entity.addChild(loadedModel)
-        entity.transform.scale = SIMD3<Float>(repeating: scale) // Apply the scale here
+        entity.transform.scale = SIMD3<Float>(repeating: scale)
         
         print("📍 Configured for virtual model anchoring")
         print("🔍 Model bounds: center=\(bounds.center), extents=\(bounds.extents)")

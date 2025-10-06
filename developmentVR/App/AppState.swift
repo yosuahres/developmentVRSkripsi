@@ -42,11 +42,11 @@ class AppState: ObservableObject {
     }
     
     var currentModelPosition: SIMD3<Float> {
-        if selectedCaseGroup?.usdzURL != nil {
+        if let usdzURLs = selectedCaseGroup?.usdzURLs, !usdzURLs.isEmpty {
             let basePosition: SIMD3<Float> = [0, 1.5, -2]
             let randomOffset: SIMD3<Float> = [
                 Float.random(in: -0.2...0.2),
-                Float.random(in: -0.1...0.1), 
+                Float.random(in: -0.1...0.1),
                 Float.random(in: -0.2...0.2)
             ]
             return basePosition + randomOffset

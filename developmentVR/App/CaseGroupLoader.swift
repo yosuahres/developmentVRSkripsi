@@ -22,27 +22,38 @@ final class CaseGroupLoader {
         await withTaskGroup(of: LoadedCaseGroup?.self) { group in
             for caseGroup in caseGroups {
                 group.addTask {
-                    guard let usdzURL = Bundle.main.url(
-                        forResource: caseGroup.usdzModelName,
-                        withExtension: "usdz"
-                    ) else {
-                        print("USDZ model not found for \(caseGroup.usdzModelName)")
-                        return nil
-                    }
+                    var usdzEntities: [Entity?] = []
+                    var usdzURLs: [URL?] = []
 
-                    do {
-                        let usdzEntity = try await Entity(contentsOf: usdzURL)
-                        let loadedCaseGroup = LoadedCaseGroup(
-                            group: caseGroup,
-                            usdzEntity: usdzEntity,
-                            usdzURL: usdzURL
-                        )
-                        
-                        return loadedCaseGroup
-                    } catch {
-                        print("Failed to load USDZ model for \(caseGroup.usdzModelName): \(error)")
-                        return nil
+                    for modelName in caseGroup.usdzModelNames {
+                        guard let usdzURL = Bundle.main.url(
+                            forResource: modelName,
+                            withExtension: "usdz"
+                        ) else {
+                            print("USDZ model not found for \(modelName)")
+                            usdzEntities.append(nil)
+                            usdzURLs.append(nil)
+                            continue
+                        }
+
+                        do {
+                            let usdzEntity = try await Entity(contentsOf: usdzURL)
+                            usdzEntities.append(usdzEntity)
+                            usdzURLs.append(usdzURL)
+                        } catch {
+                            print("Failed to load USDZ model for \(modelName): \(error)")
+                            usdzEntities.append(nil)
+                            usdzURLs.append(nil)
+                        }
                     }
+                    
+                    let loadedCaseGroup = LoadedCaseGroup(
+                        group: caseGroup,
+                        usdzEntities: usdzEntities,
+                        usdzURLs: usdzURLs
+                    )
+                    
+                    return loadedCaseGroup
                 }
             }
 

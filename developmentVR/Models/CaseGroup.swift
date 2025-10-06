@@ -10,7 +10,7 @@ import RealityKit
 
 struct CaseGroup: Identifiable, Hashable {
     let id = UUID()
-    let usdzModelName: String
+    let usdzModelNames: [String]
     let name: String
     let description: String
 }
@@ -18,6 +18,6 @@ struct CaseGroup: Identifiable, Hashable {
 struct LoadedCaseGroup: Identifiable {
     let id = UUID()
     let group: CaseGroup
-    let usdzEntity: Entity?
-    let usdzURL: URL?
+    let usdzEntities: [Entity?]
+    let usdzURLs: [URL?]
 }

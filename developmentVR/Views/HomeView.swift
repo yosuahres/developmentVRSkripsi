@@ -56,7 +56,7 @@ struct HomeView: View {
             }
         } detail: {
             if let selectedObject = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroupId}) {
-                if let usdzURL = selectedObject.usdzURL {
+                if let firstUsdzURL = selectedObject.usdzURLs.first, let usdzURL = firstUsdzURL {
                     Model3D(url: usdzURL) { model in
                         model
                             .resizable()

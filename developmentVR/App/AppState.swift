@@ -20,11 +20,23 @@ class AppState: ObservableObject {
 
     @Published var selectedCaseGroup: LoadedCaseGroup?
     
-    // Ruler and measurement state
+    // management state
     @Published var rulerManager = RulerManager()
     @Published var planePositions: [SIMD3<Float>] = []
     @Published var rootContentEntity: Entity?
     @Published var isMaxillaVisible: Bool = true
+    @Published var isMandibleVisible: Bool = true
+    @Published var maxillaOpacityToggle: Bool = true
+    @Published var mandibleOpacityToggle: Bool = true
+    
+    // Computed properties for opacity values
+    var maxillaOpacity: Float {
+        return maxillaOpacityToggle ? 1.0 : 0.5
+    }
+    
+    var mandibleOpacity: Float {
+        return mandibleOpacityToggle ? 1.0 : 0.5
+    }
     
     enum ImmersiveSpaceState {
         case closed
@@ -72,6 +84,18 @@ class AppState: ObservableObject {
     
     func toggleMaxillaVisibility() {
         isMaxillaVisible.toggle()
+    }
+    
+    func toggleMandibleVisibility() {
+        isMandibleVisible.toggle()
+    }
+    
+    func toggleOpacityMaxilla() {
+        maxillaOpacityToggle.toggle()
+    }
+    
+    func toggleOpacityMandible() {
+        mandibleOpacityToggle.toggle()
     }
     
     func openControlsWindow(openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) async {

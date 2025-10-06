@@ -41,11 +41,12 @@ struct ImmersiveControlsView: View {
                     
                     //controls
                     HStack {
-                        VStack(spacing: 40) {
+                        VStack(alignment: .leading, spacing: 40) {
+
+                            //ruler toggle
                             HStack(spacing: 40) {
                                 Image(systemName: "ruler.fill")
                                     .font(.system(size: 80))
-                                    // .foregroundColor(self.appState.rulerManager.isRulerMode ? .blue : .gray)
                                 
                                 Button(action: {
                                     self.appState.rulerManager.toggleRulerVisibility()
@@ -54,13 +55,15 @@ struct ImmersiveControlsView: View {
                                         .font(.system(size: 80))
                                         .foregroundColor(self.appState.rulerManager.isRulerVisible ? .green : .red)
                                 }
+                                
+                                Spacer()
+                                    .frame(width: 80) 
                             }
                             
-                            
+                            //maxilla model toggle
                             HStack(spacing: 40) {
                                 Image(systemName: "cube.fill")
                                     .font(.system(size: 80))
-                                    // .foregroundColor(self.appState.isMaxillaVisible ? .orange : .gray)
                                 
                                 Button(action: {
                                     self.appState.toggleMaxillaVisibility()
@@ -68,6 +71,36 @@ struct ImmersiveControlsView: View {
                                     Image(systemName: self.appState.isMaxillaVisible ? "eye.fill" : "eye.slash.fill")
                                         .font(.system(size: 80))
                                         .foregroundColor(self.appState.isMaxillaVisible ? .orange : .gray)
+                                }
+                                
+                                Button(action: {
+                                    self.appState.toggleOpacityMaxilla()
+                                }) {
+                                    Image(systemName: self.appState.maxillaOpacityToggle ? "circle.lefthalf.filled" : "circle.dotted")
+                                        .font(.system(size: 80))
+                                        .foregroundColor(self.appState.maxillaOpacityToggle ? .blue : .gray)
+                                }
+                            }
+                            
+                            //mandible model toggle
+                            HStack(spacing: 40) {
+                                Image(systemName: "heart.fill") 
+                                    .font(.system(size: 80))
+                                
+                                Button(action: {
+                                    self.appState.toggleMandibleVisibility()
+                                }) {
+                                    Image(systemName: self.appState.isMandibleVisible ? "eye.fill" : "eye.slash.fill")
+                                        .font(.system(size: 80))
+                                        .foregroundColor(self.appState.isMandibleVisible ? .red : .gray)
+                                }
+                                
+                                Button(action: {
+                                    self.appState.toggleOpacityMandible()
+                                }) {
+                                    Image(systemName: self.appState.mandibleOpacityToggle ? "circle.lefthalf.filled" : "circle.dotted")
+                                        .font(.system(size: 80))
+                                        .foregroundColor(self.appState.mandibleOpacityToggle ? .purple : .gray)
                                 }
                             }
                         }
@@ -94,7 +127,7 @@ struct ImmersiveControlsView: View {
             }
         }
         .padding()
-        .frame(width: 700, height: 800)
+        .frame(width: 800, height: 900)
         .glassBackgroundEffect()
     }
 }

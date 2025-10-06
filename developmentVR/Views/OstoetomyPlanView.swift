@@ -62,6 +62,12 @@ struct OstoetomyPlanView: View {
 
                                 if usdzURL.lastPathComponent.contains("Maxilla") {
                                     model.isEnabled = appState.isMaxillaVisible
+                                    // Set initial opacity for Maxilla
+                                    model.components.set(OpacityComponent(opacity: appState.maxillaOpacity))
+                                } else if usdzURL.lastPathComponent.contains("Mandibula") {
+                                    model.isEnabled = appState.isMandibleVisible
+                                    // Set initial opacity for Mandible
+                                    model.components.set(OpacityComponent(opacity: appState.mandibleOpacity))
                                 }
                             }
 
@@ -103,6 +109,12 @@ struct OstoetomyPlanView: View {
                     if let model = modelEntities[index], let usdzURL = loadedGroup.usdzURLs[index] {
                         if usdzURL.lastPathComponent.contains("Maxilla") {
                             model.isEnabled = appState.isMaxillaVisible
+                            // Apply opacity changes for Maxilla
+                            model.components.set(OpacityComponent(opacity: appState.maxillaOpacity))
+                        } else if usdzURL.lastPathComponent.contains("Mandibula") {
+                            model.isEnabled = appState.isMandibleVisible
+                            // Apply opacity changes for Mandible
+                            model.components.set(OpacityComponent(opacity: appState.mandibleOpacity))
                         }
                     }
                 }

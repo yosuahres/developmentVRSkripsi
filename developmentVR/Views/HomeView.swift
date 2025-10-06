@@ -56,7 +56,30 @@ struct HomeView: View {
             }
         } detail: {
             if let selectedObject = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroupId}) {
-                if let firstUsdzURL = selectedObject.usdzURLs.first, let usdzURL = firstUsdzURL {
+                if selectedObject.usdzURLs.count >= 2,
+                   let usdzURL1 = selectedObject.usdzURLs[0],
+                   let usdzURL2 = selectedObject.usdzURLs[1] {
+                    HStack { // Reverted to HStack for side-by-side display
+                        Model3D(url: usdzURL1) { model in
+                            model
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .scaleEffect(0.5)
+                                .offset(y: -50)
+                        } placeholder: {
+                            ProgressView()
+                        }
+                        Model3D(url: usdzURL2) { model in
+                            model
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .scaleEffect(0.5)
+                                .offset(y: -50)
+                        } placeholder: {
+                            ProgressView()
+                        }
+                    }
+                } else if let firstUsdzURL = selectedObject.usdzURLs.first, let usdzURL = firstUsdzURL {
                     Model3D(url: usdzURL) { model in
                         model
                             .resizable()

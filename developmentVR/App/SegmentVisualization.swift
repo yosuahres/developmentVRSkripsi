@@ -65,10 +65,10 @@ extension Entity {
         entity.position = position
         
         let up = SIMD3<Float>(0, 1, 0)
-        let right = normalize(cross(up, normal))
-        let actualUp = cross(normal, right)
+        let rightVector = normalize(cross(up, normal))
+        let actualUp = cross(normal, rightVector)
         
-        let rotationMatrix = float3x3(right, actualUp, normal)
+        let rotationMatrix = float3x3(rightVector, actualUp, normal)
         entity.transform.rotation = simd_quatf(rotationMatrix)
         
         entity.addChild(planeEntity)

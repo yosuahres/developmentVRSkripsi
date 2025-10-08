@@ -9,6 +9,11 @@ import SwiftUI
 import RealityKit
 import RealityKitContent
 
+enum TargetSide {
+    case left
+    case right
+}
+
 @MainActor
 class AppState: ObservableObject {
     let immersiveSpaceID = "ImmersiveSpace"
@@ -28,8 +33,9 @@ class AppState: ObservableObject {
     @Published var isMandibleVisible: Bool = true
     @Published var maxillaOpacityToggle: Bool = true
     @Published var mandibleOpacityToggle: Bool = true
+    @Published var currentTargetSide: TargetSide = .left
+    @Published var shouldSpawnPlane: Bool = false
     
-    // Computed properties for opacity values
     var maxillaOpacity: Float {
         return maxillaOpacityToggle ? 1.0 : 0.5
     }
@@ -109,6 +115,10 @@ class AppState: ObservableObject {
     func closeControlsWindow(dismissWindow: DismissWindowAction) async {
         dismissWindow(id: "controls")
         controlsWindowState = .closed
+    }
+    
+    func triggerSpawnPlane() {
+        shouldSpawnPlane = true
     }
 }
 

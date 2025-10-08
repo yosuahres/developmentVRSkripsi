@@ -57,7 +57,7 @@ struct ImmersiveControlsView: View {
                                 }
                                 
                                 Spacer()
-                                    .frame(width: 80) 
+                                    .frame(width: 85) 
                             }
                             
                             //maxilla model toggle
@@ -84,7 +84,7 @@ struct ImmersiveControlsView: View {
                             
                             //mandible model toggle
                             HStack(spacing: 40) {
-                                Image(systemName: "heart.fill") 
+                                Image(systemName: "heart.fill")
                                     .font(.system(size: 80))
                                 
                                 Button(action: {
@@ -103,8 +103,24 @@ struct ImmersiveControlsView: View {
                                         .foregroundColor(self.appState.mandibleOpacityToggle ? .purple : .gray)
                                 }
                             }
+                            
+                            // Target Side Selector
+                            Picker("Target Side", selection: $appState.currentTargetSide) {
+                                Text("Left").tag(TargetSide.left)
+                                Text("Right").tag(TargetSide.right)
+                            }
+                            .pickerStyle(.segmented)
+                            .frame(width: 300)
+                            .padding(.top, 20)
+                            
+                            Button("Spawn Plane") {
+                                appState.triggerSpawnPlane()
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.large)
+                            .padding(.top, 20)
                         }
-                        Spacer() 
+                        Spacer()
                     }
                     .padding(.horizontal)
                     
@@ -121,13 +137,13 @@ struct ImmersiveControlsView: View {
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.large)
-                        Spacer() 
+                        Spacer()
                     }
                 }
             }
         }
         .padding()
-        .frame(width: 800, height: 900)
+        .frame(width: 700, height: 800)
         .glassBackgroundEffect()
     }
 }

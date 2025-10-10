@@ -10,6 +10,12 @@ import RealityKit
 import RealityKitContent
 import ARKit // Import ARKit
 
+extension Point3D {
+    var vector: SIMD3<Float> {
+        SIMD3<Float>(Float(x), Float(y), Float(z))
+    }
+}
+
 struct OstoetomyPlanView: View {
     @ObservedObject var appState: AppState
     @State private var objectAnchorVisualizations: [ObjectAnchorVisualization] = []
@@ -19,12 +25,24 @@ struct OstoetomyPlanView: View {
     @State private var currentAngle: Float = 0
     @State private var cuttingPlanes: [Entity] = []
     @State private var baseModel: ModelEntity?
-    // Removed currentCameraTransform, will use deviceAnchorTransform directly
     
+    // State for two-tap plane placement
+    enum TapPhase {
+        case waitingForFirstTap
+        case waitingForSecondTap
+        case readyToSpawn
+    }
+    @State private var tapPhase: TapPhase = .waitingForFirstTap
+    @State private var firstTapPoint: SIMD3<Float>?
+    @State private var firstTapNormal: SIMD3<Float>?
+    @State private var secondTapPoint: SIMD3<Float>?
+    @State private var secondTapNormal: SIMD3<Float>?
+    @State private var tapMarkers: [ModelEntity] = [] // For visual feedback
+
     // ARKit session and provider
     @State private var arkitSession = ARKitSession()
     @State private var worldTracking = WorldTrackingProvider()
-    @State private var deviceAnchorTransform: Transform = .identity // New state for DeviceAnchor transform
+    @State private var deviceAnchorTransform: Transform = .identity 
 
     private let realWorldScale: Float = 100.0
     private let centerDeadZone: Float = 0.01
@@ -55,8 +73,8 @@ struct OstoetomyPlanView: View {
                     objectAnchorVisualizations = []
                     modelEntities = []
                     
-                    for (index, _) in loadedGroup.usdzEntities.enumerated() { // Fixed: usdzEntity not used
-                        if let usdzURL = loadedGroup.usdzURLs[index] { // Fixed: usdzEntity not used
+                    for (index, _) in loadedGroup.usdzEntities.enumerated() { 
+                        if let usdzURL = loadedGroup.usdzURLs[index] { 
                             do {
                                 let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, scale: 0.001) //convert to mm, idk what it should be
 
@@ -140,6 +158,11 @@ struct OstoetomyPlanView: View {
                 get: { modelEntities.first ?? nil },
                 set: { _ in }
             ), currentAngle: $currentAngle))
+            .gesture(SpatialTapGesture()
+                .targetedToAnyEntity()
+                .onEnded { value in
+                    handleTapWithEntityTarget(value: value)
+                })
                 
                 VStack {
                     Spacer()
@@ -147,12 +170,6 @@ struct OstoetomyPlanView: View {
                         Spacer()
                         // The button is now in ImmersiveControlsView
                     }
-                }
-            }
-            .onChange(of: appState.shouldSpawnPlane) { _, newValue in
-                if newValue {
-                    spawnPlaneOnSurface() // Call directly
-                    appState.shouldSpawnPlane = false
                 }
             }
             .task {
@@ -177,71 +194,129 @@ struct OstoetomyPlanView: View {
             }
     }
 
-    func spawnPlaneOnSurface() { // Removed realityContent parameter
-        print("spawnPlaneOnSurface() called.")
-        guard let baseModel = baseModel, let rootContentEntity = appState.rootContentEntity else { // Fixed: rootEntity not in scope, renamed for clarity
-            print("DEBUG: baseModel or rootContentEntity is nil. Cannot spawn plane.")
+    func handleTapWithEntityTarget(value: EntityTargetValue<SpatialTapGesture.Value>) {
+        // Extract the gesture value from the entity target value
+        let gestureValue = value.gestureValue
+        handleTap(value: gestureValue)
+    }
+
+    func handleTap(value: SpatialTapGesture.Value) {
+        guard let rootContentEntity = appState.rootContentEntity else {
+            print("DEBUG: rootContentEntity is nil. Cannot handle tap.")
             return
         }
 
-        let cameraPosition = deviceAnchorTransform.translation // Use deviceAnchorTransform
-        let cameraForwardDirection = normalize(deviceAnchorTransform.rotation.act(SIMD3<Float>(x: 0, y: 0, z: -1)))
-        let cameraRightDirection = normalize(deviceAnchorTransform.rotation.act(SIMD3<Float>(x: 1, y: 0, z: 0))) // Camera's right vector
+        // The tap's 3D location on the entity's surface
+        let tapWorldPosition = value.location3D.vector // Use the extension
 
-        print("DEBUG: Camera Position: \(cameraPosition), Forward Direction: \(cameraForwardDirection), Right Direction: \(cameraRightDirection)")
+        // Perform a raycast from the camera's position through the tapWorldPosition
+        let cameraPosition = deviceAnchorTransform.translation
+        let rayDirection = normalize(tapWorldPosition - cameraPosition)
 
-        // Perform raycast from camera position in forward direction, targeting only baseModel
-        if let firstResult = rootContentEntity.scene?.raycast(from: cameraPosition, to: cameraPosition + cameraForwardDirection * 1000, query: .nearest, target: baseModel).first { // Changed to explicitly target baseModel
-            print("DEBUG: Raycast hit detected at world position: \(firstResult.position)")
-            print("DEBUG: Raycast hit entity: \(firstResult.entity.name)") // Added debug print
-            print("DEBUG: Hit normal (world space): \(firstResult.normal)")
+        if let hitResult = rootContentEntity.scene?.raycast(from: cameraPosition, to: cameraPosition + rayDirection * 1000, query: .nearest).first {
+            
+            // Ensure the hit is on the baseModel (Mandible)
+            if hitResult.entity == baseModel {
+                let hitPosition = hitResult.position
+                let hitNormal = hitResult.normal
 
-            let dotProductWithCameraRight = dot(firstResult.normal, cameraRightDirection)
-            print("DEBUG: Dot product of hit normal and camera's right direction: \(dotProductWithCameraRight)")
-
-            let isCorrectSide: Bool
-            switch appState.currentTargetSide {
-            case .left:
-                isCorrectSide = dotProductWithCameraRight > 0.1 // Threshold to account for glancing angles
-                print("DEBUG: Checking left side. Dot product (\(dotProductWithCameraRight)) > 0.1 is \(isCorrectSide)")
-            case .right:
-                isCorrectSide = dotProductWithCameraRight < -0.1 // Threshold
-                print("DEBUG: Checking right side. Dot product (\(dotProductWithCameraRight)) < -0.1 is \(isCorrectSide)")
-            }
-
-            if isCorrectSide {
-                print("DEBUG: Validation passed. Spawning plane.")
-                spawnPlane(at: firstResult)
+                switch tapPhase {
+                case .waitingForFirstTap:
+                    firstTapPoint = hitPosition
+                    firstTapNormal = hitNormal
+                    tapPhase = .waitingForSecondTap
+                    addTapMarker(at: hitPosition, color: .yellow) // Visual feedback
+                    print("DEBUG: First tap recorded at \(hitPosition)")
+                case .waitingForSecondTap:
+                    secondTapPoint = hitPosition
+                    secondTapNormal = hitNormal
+                    tapPhase = .readyToSpawn
+                    addTapMarker(at: hitPosition, color: .orange) // Visual feedback
+                    print("DEBUG: Second tap recorded at \(hitPosition)")
+                    spawnPlaneFromTwoTaps()
+                    resetTapState()
+                case .readyToSpawn:
+                    resetTapState()
+                    handleTap(value: value) // Re-process the tap as the first tap
+                }
             } else {
-                print("DEBUG: Wrong side hit based on normal direction. Please aim at the \(appState.currentTargetSide) side.")
+                print("DEBUG: Tap did not hit the base model.")
             }
         } else {
-            print("DEBUG: Raycast did not hit any surface on the base model.")
+            print("DEBUG: Raycast from tap did not hit any surface.")
         }
     }
 
-    func spawnPlane(at result: CollisionCastHit) {
-        print("spawnPlane() called at result position: \(result.position)")
+    func addTapMarker(at position: SIMD3<Float>, color: UIColor) {
+        let markerMesh = MeshResource.generateSphere(radius: 0.005) // 5mm sphere
+        let markerMaterial = SimpleMaterial(color: color, isMetallic: false)
+        let markerEntity = ModelEntity(mesh: markerMesh, materials: [markerMaterial])
+        markerEntity.position = position
+        appState.rootContentEntity?.addChild(markerEntity)
+        tapMarkers.append(markerEntity)
+    }
+
+    func spawnPlaneFromTwoTaps() {
+        guard let p1 = firstTapPoint, let n1 = firstTapNormal,
+              let p2 = secondTapPoint, let n2 = secondTapNormal,
+              let bm = baseModel else { // Removed rootContentEntity
+            print("DEBUG: Missing tap points or base model. Cannot spawn plane.")
+            return
+        }
+
+        // Calculate center position
+        let centerPosition = (p1 + p2) / 2.0
+
+        // Calculate average normal
+        let averageNormal = normalize(n1 + n2)
+
+        // Calculate vector between tap points for plane orientation
+        let tapVector = normalize(p2 - p1)
+
+        // Construct orthonormal basis for the plane's rotation
+        let zAxis = averageNormal // Plane's local Z-axis (normal)
+        let xAxis = normalize(cross(averageNormal, tapVector)) // Plane's local X-axis (along the line between taps)
+        let yAxis = normalize(cross(zAxis, xAxis)) // Plane's local Y-axis
+
+        let rotationMatrix = simd_float3x3(columns: (xAxis, yAxis, zAxis))
+        let planeRotation = simd_quatf(rotationMatrix)
+        
+        // Create a transform that aligns the plane
+        let planeTransform = Transform(
+            rotation: planeRotation,
+            translation: centerPosition
+        )
+
         // Adjust plane size to be more visible relative to the scaled model (assuming model is in mm)
-        let planeSize: Float = 0.02 // This will create a 2cm x 2cm plane if 1 unit = 1 meter and scale is 0.001
+        let planeSize: Float = 0.02 // 2cm x 2cm
         let planeMesh = MeshResource.generatePlane(width: planeSize, depth: planeSize)
         let color: UIColor = appState.currentTargetSide == .left ? .green : .red
-        print("DEBUG: Plane color set to: \(color == .green ? "Green (Left)" : "Red (Right)")")
         let material = SimpleMaterial(color: color, isMetallic: false)
         let planeEntity = ModelEntity(mesh: planeMesh, materials: [material])
 
+        // Apply the calculated transform
+        planeEntity.transform = planeTransform
+        
         // Offset the plane slightly along its normal to prevent Z-fighting and ensure visibility
         let offset: Float = 0.001 // 1 mm offset
-        planeEntity.position = result.position + result.normal * offset
-        planeEntity.look(at: result.position + result.normal, from: result.position, relativeTo: nil)
+        planeEntity.position += averageNormal * offset
 
-        if let bm = baseModel { // Added debug check
-            print("DEBUG: baseModel exists. World position: \(bm.position(relativeTo: nil))")
-            bm.addChild(planeEntity)
-            print("DEBUG: Plane added to baseModel. Plane world position: \(planeEntity.position(relativeTo: nil))")
-        } else {
-            print("DEBUG: baseModel is nil, cannot add plane.")
-        }
+        bm.addChild(planeEntity)
         cuttingPlanes.append(planeEntity)
+        print("DEBUG: Plane spawned from two taps at \(centerPosition) with normal \(averageNormal)")
+    }
+
+    func resetTapState() {
+        tapPhase = .waitingForFirstTap
+        firstTapPoint = nil
+        firstTapNormal = nil
+        secondTapPoint = nil
+        secondTapNormal = nil
+        // Remove visual markers
+        for marker in tapMarkers {
+            marker.removeFromParent()
+        }
+        tapMarkers.removeAll()
+        print("DEBUG: Tap state reset.")
     }
 }

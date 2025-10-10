@@ -34,8 +34,6 @@ class AppState: ObservableObject {
     @Published var maxillaOpacityToggle: Bool = true
     @Published var mandibleOpacityToggle: Bool = true
     @Published var currentTargetSide: TargetSide = .left
-    @Published var shouldSpawnPlane: Bool = false
-    
     var maxillaOpacity: Float {
         return maxillaOpacityToggle ? 1.0 : 0.5
     }
@@ -117,9 +115,6 @@ class AppState: ObservableObject {
         controlsWindowState = .closed
     }
     
-    func triggerSpawnPlane() {
-        shouldSpawnPlane = true
-    }
 }
 
 @main

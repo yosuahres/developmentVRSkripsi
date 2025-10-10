@@ -113,12 +113,6 @@ struct ImmersiveControlsView: View {
                             .frame(width: 300)
                             .padding(.top, 20)
                             
-                            Button("Spawn Plane") {
-                                appState.triggerSpawnPlane()
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .controlSize(.large)
-                            .padding(.top, 20)
                         }
                         Spacer()
                     }

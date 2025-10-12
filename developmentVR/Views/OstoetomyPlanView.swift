@@ -25,6 +25,7 @@ struct OstoetomyPlanView: View {
     @State private var currentAngle: Float = 0
     @State private var cuttingPlanes: [Entity] = []
     @State private var baseModel: ModelEntity?
+    @State private var draggedPlane: Entity?
     
     // State for two-tap plane placement
     enum TapPhase {
@@ -163,6 +164,34 @@ struct OstoetomyPlanView: View {
                 .onEnded { value in
                     handleTapWithEntityTarget(value: value)
                 })
+            .gesture(DragGesture()
+                .targetedToAnyEntity()
+                .onChanged { value in
+                    // If we're not already dragging a plane, find which one was targeted.
+                    if draggedPlane == nil {
+                        // Check if the targeted entity is one of our cutting planes.
+                        if cuttingPlanes.contains(where: { $0 == value.entity }) {
+                            draggedPlane = value.entity
+                        }
+                    }
+                    
+                    // If we have a plane to drag, update its position.
+                    if let plane = draggedPlane {
+                        let dragTranslation = value.translation3D
+                        plane.position += SIMD3<Float>(dragTranslation)
+                        
+                        // This is a simple rotation based on horizontal drag.
+                        // A more complex rotation might use two hands or a different gesture.
+                        let rotationAngle = Float(value.translation.width * .pi / 180) // Convert drag width to radians
+                        let rotation = simd_quatf(angle: rotationAngle, axis: SIMD3<Float>(0, 1, 0)) // Rotate around Y-axis
+                        plane.orientation *= rotation
+                    }
+                }
+                .onEnded { _ in
+                    // When the drag ends, release the reference to the plane.
+                    draggedPlane = nil
+                }
+            )
                 
                 VStack {
                     Spacer()
@@ -315,6 +344,10 @@ struct OstoetomyPlanView: View {
 
         // Apply the calculated transform
         planeEntity.transform = planeTransform
+        
+        // Make the plane interactive
+        planeEntity.components.set(InputTargetComponent())
+        planeEntity.generateCollisionShapes(recursive: false) // Use a simple shape
         
         // Offset the plane slightly along its normal to prevent Z-fighting and ensure visibility
         let offset: Float = 0.001 // 1 mm offset

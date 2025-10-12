@@ -201,6 +201,7 @@ struct OstoetomyPlanView: View {
     }
 
     func handleTap(value: SpatialTapGesture.Value) {
+        print("DEBUG: Camera Transform on Tap: \(deviceAnchorTransform)")
         guard let rootContentEntity = appState.rootContentEntity else {
             print("DEBUG: rootContentEntity is nil. Cannot handle tap.")
             return
@@ -209,14 +210,32 @@ struct OstoetomyPlanView: View {
         // The tap's 3D location on the entity's surface
         let tapWorldPosition = value.location3D.vector // Use the extension
 
-        // Perform a raycast from the camera's position through the tapWorldPosition
+        // To get the surface normal, we perform a raycast.
+        // The ray starts just "outside" the tapped point (towards the camera)
+        // and ends just "inside" the tapped point. This is more robust than
+        // casting from the camera itself.
         let cameraPosition = deviceAnchorTransform.translation
-        let rayDirection = normalize(tapWorldPosition - cameraPosition)
+        let vectorFromCamera = normalize(tapWorldPosition - cameraPosition)
 
-        if let hitResult = rootContentEntity.scene?.raycast(from: cameraPosition, to: cameraPosition + rayDirection * 1000, query: .nearest).first {
+        // Start the ray slightly in front of the tapped surface
+        let rayOrigin = tapWorldPosition - vectorFromCamera * 0.1 // 10 cm in front
+        // End the ray slightly behind the tapped surface
+        let rayEnd = tapWorldPosition + vectorFromCamera * 0.1 // 10 cm behind
+
+        if let hitResult = rootContentEntity.scene?.raycast(from: rayOrigin, to: rayEnd, query: .any).first {
             
-            // Ensure the hit is on the baseModel (Mandible)
-            if hitResult.entity == baseModel {
+            // Ensure the hit is on the baseModel (Mandible) by checking the entity and its ancestors.
+            var entity: Entity? = hitResult.entity
+            var isBaseModelHit = false
+            while entity != nil {
+                if entity == baseModel {
+                    isBaseModelHit = true
+                    break
+                }
+                entity = entity?.parent
+            }
+
+            if isBaseModelHit {
                 let hitPosition = hitResult.position
                 let hitNormal = hitResult.normal
 
@@ -240,7 +259,7 @@ struct OstoetomyPlanView: View {
                     handleTap(value: value) // Re-process the tap as the first tap
                 }
             } else {
-                print("DEBUG: Tap did not hit the base model.")
+                print("DEBUG: Tap did not hit the base model. Hit \(hitResult.entity.name) instead.")
             }
         } else {
             print("DEBUG: Raycast from tap did not hit any surface.")

@@ -11,30 +11,79 @@ import RealityKitContent
 
 struct Gestures {
 
-    static func dragGesture(modelEntity: Binding<ModelEntity?>, lastTranslation: Binding<CGSize>) -> some Gesture {
-        MagnificationGesture()
+    static func dragGesture(modelEntity: Binding<ModelEntity?>, initialTransform: Binding<Transform?>) -> some Gesture {
+        DragGesture()
             .targetedToAnyEntity()
             .onChanged { value in
+                if modelEntity.wrappedValue == nil {
+                    modelEntity.wrappedValue = value.entity as? ModelEntity
+                }
+                
                 guard let model = modelEntity.wrappedValue else { return }
-                let pinchValue = value.gestureValue
-                let movement = Float(pinchValue - 1.0) * 0.01
-                model.position += [movement, movement, movement]
+
+                if initialTransform.wrappedValue == nil {
+                    initialTransform.wrappedValue = model.transform
+                }
+
+                let dragTranslation = value.translation3D
+                var newTransform = initialTransform.wrappedValue!
+                newTransform.translation += SIMD3<Float>(Float(dragTranslation.x), Float(dragTranslation.y), Float(dragTranslation.z))
+                model.transform = newTransform
             }
             .onEnded { _ in
-                lastTranslation.wrappedValue = .zero
+                initialTransform.wrappedValue = nil
+                modelEntity.wrappedValue = nil
             }
     }
 
-    static func rotationGesture(modelEntity: Binding<ModelEntity?>, currentAngle: Binding<Float>) -> some Gesture {
-        MagnificationGesture()
-            .onChanged { pinchValue in
+    static func rotationGesture(modelEntity: Binding<ModelEntity?>, initialRotation: Binding<simd_quatf?>) -> some Gesture {
+        RotateGesture3D(minimumAngleDelta: .degrees(1))
+            .targetedToAnyEntity()
+            .onChanged { value in
+                if modelEntity.wrappedValue == nil {
+                    modelEntity.wrappedValue = value.entity as? ModelEntity
+                }
+                
                 guard let model = modelEntity.wrappedValue else { return }
-                let rotationAngle = currentAngle.wrappedValue + Float(pinchValue - 1.0) * 2.0
-                model.transform.rotation = simd_quatf(angle: rotationAngle, axis: [0, 1, 0])
+
+                if initialRotation.wrappedValue == nil {
+                    initialRotation.wrappedValue = model.transform.rotation
+                }
+
+                let rotation = value.rotation
+                let qd = rotation.quaternion
+                let qf = simd_quatf(ix: Float(qd.imag.x), iy: Float(qd.imag.y), iz: Float(qd.imag.z), r: Float(qd.real))
+                let newRotation = initialRotation.wrappedValue! * qf
+                model.transform.rotation = newRotation
             }
-            .onEnded { pinchValue in
-                currentAngle.wrappedValue += Float(pinchValue - 1.0) * 2.0
+            .onEnded { _ in
+                initialRotation.wrappedValue = nil
+                modelEntity.wrappedValue = nil
             }
     }
     
+    static func magnificationGesture(modelEntity: Binding<ModelEntity?>, initialScale: Binding<SIMD3<Float>?>) -> some Gesture {
+        MagnifyGesture()
+            .targetedToAnyEntity()
+            .onChanged { value in
+                if modelEntity.wrappedValue == nil {
+                    modelEntity.wrappedValue = value.entity as? ModelEntity
+                }
+                
+                guard let model = modelEntity.wrappedValue else { return }
+
+                if initialScale.wrappedValue == nil {
+                    initialScale.wrappedValue = model.transform.scale
+                }
+                
+                let magnification = Float(value.magnification)
+                var newScale = initialScale.wrappedValue!
+                newScale *= magnification
+                model.transform.scale = newScale
+            }
+            .onEnded { _ in
+                initialScale.wrappedValue = nil
+                modelEntity.wrappedValue = nil
+            }
+    }
 }

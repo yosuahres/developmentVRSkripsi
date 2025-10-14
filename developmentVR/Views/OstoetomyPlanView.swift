@@ -21,13 +21,16 @@ struct OstoetomyPlanView: View {
     @State private var objectAnchorVisualizations: [ObjectAnchorVisualization] = []
     @State private var modelEntities: [ModelEntity?] = []
     @State private var mandibleAnchorWorldPosition: SIMD3<Float> = .zero
-    @State private var lastDragTranslation: CGSize = .zero
-    @State private var currentAngle: Float = 0
     @State private var cuttingPlanes: [Entity] = []
-    @State private var baseModel: ModelEntity?
+    @State private var initialTransform: Transform? = nil
+    @State private var initialRotation: simd_quatf? = nil
+    @State private var initialScale: SIMD3<Float>? = nil
+    @State private var mandibleModel: ModelEntity?
+    @State private var maxillaModel: ModelEntity?
+    @State private var activeModel: ModelEntity?
     @State private var draggedPlane: Entity?
     
-    // State for two-tap plane placement
+
     enum TapPhase {
         case waitingForFirstTap
         case waitingForSecondTap
@@ -55,13 +58,10 @@ struct OstoetomyPlanView: View {
                 appState.rootContentEntity = rootEntity
                 content.add(rootEntity)
                 
-                // The camera transform will be retrieved in the update closure.
                 
                 if let selectedCaseGroup = appState.selectedCaseGroup,
                    let loadedGroup = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroup.id }) {
                     
-                    // spawn models in front of user
-                    // Use a default transform for initial model placement, as cameraTransform is not yet available
                     let initialUserTransform = Transform(translation: [0, 1.5, -1])
                     let userForward = initialUserTransform.rotation.act(SIMD3<Float>(x: 0, y: 0, z: -1))
                     let spawnDistance: Float = 0.0
@@ -79,7 +79,6 @@ struct OstoetomyPlanView: View {
                             do {
                                 let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, scale: 0.001) //convert to mm, idk what it should be
 
-                                // apply rotation look left
                                 visualization.entity.transform.rotation = simd_quatf(angle: -Float.pi / 2, axis: [0, 1, 0])
 
                                 if let model = visualization.modelEntity {
@@ -94,7 +93,7 @@ struct OstoetomyPlanView: View {
                                         model.isEnabled = appState.isMandibleVisible
                                         // Set initial opacity for Mandible
                                         model.components.set(OpacityComponent(opacity: appState.mandibleOpacity))
-                                        baseModel = model
+                                        mandibleModel = model
                                     }
                                 }
 
@@ -123,8 +122,8 @@ struct OstoetomyPlanView: View {
                     }
 
                     mandibleAnchorWorldPosition = spawnPosition
-                    if let baseModel = baseModel {
-                        print("DEBUG: Base Model World Position (after adjustments): \(baseModel.position(relativeTo: nil))")
+                    if let mandibleModel = mandibleModel {
+                        print("DEBUG: Base Model World Position (after adjustments): \(mandibleModel.position(relativeTo: nil))")
                     }
                 } else {
                     if let fallbackScene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
@@ -139,7 +138,8 @@ struct OstoetomyPlanView: View {
                 if let selectedCaseGroup = appState.selectedCaseGroup,
                    let loadedGroup = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroup.id }) {
                     for (index, usdzEntity) in loadedGroup.usdzEntities.enumerated() {
-                        if let model = modelEntities[index], let usdzURL = loadedGroup.usdzURLs[index] {
+                            if modelEntities.indices.contains(index), loadedGroup.usdzURLs.indices.contains(index),
+                               let model = modelEntities[index], let usdzURL = loadedGroup.usdzURLs[index] {
                             if usdzURL.lastPathComponent.contains("Maxilla") {
                                 model.isEnabled = appState.isMaxillaVisible
                                 model.components.set(OpacityComponent(opacity: appState.maxillaOpacity))
@@ -151,14 +151,9 @@ struct OstoetomyPlanView: View {
                     }
                 }
             }
-            .simultaneousGesture(Gestures.dragGesture(modelEntity: Binding(
-                get: { modelEntities.first ?? nil },
-                set: { _ in }
-            ), lastTranslation: $lastDragTranslation))
-            .simultaneousGesture(Gestures.rotationGesture(modelEntity: Binding(
-                get: { modelEntities.first ?? nil },
-                set: { _ in }
-            ), currentAngle: $currentAngle))
+            .gesture(Gestures.dragGesture(modelEntity: $activeModel, initialTransform: $initialTransform))
+            .gesture(Gestures.rotationGesture(modelEntity: $activeModel, initialRotation: $initialRotation))
+            .gesture(Gestures.magnificationGesture(modelEntity: $activeModel, initialScale: $initialScale))
             .gesture(SpatialTapGesture()
                 .targetedToAnyEntity()
                 .onEnded { value in
@@ -167,28 +162,22 @@ struct OstoetomyPlanView: View {
             .gesture(DragGesture()
                 .targetedToAnyEntity()
                 .onChanged { value in
-                    // If we're not already dragging a plane, find which one was targeted.
                     if draggedPlane == nil {
-                        // Check if the targeted entity is one of our cutting planes.
                         if cuttingPlanes.contains(where: { $0 == value.entity }) {
                             draggedPlane = value.entity
                         }
                     }
                     
-                    // If we have a plane to drag, update its position.
                     if let plane = draggedPlane {
                         let dragTranslation = value.translation3D
                         plane.position += SIMD3<Float>(dragTranslation)
                         
-                        // This is a simple rotation based on horizontal drag.
-                        // A more complex rotation might use two hands or a different gesture.
-                        let rotationAngle = Float(value.translation.width * .pi / 180) // Convert drag width to radians
-                        let rotation = simd_quatf(angle: rotationAngle, axis: SIMD3<Float>(0, 1, 0)) // Rotate around Y-axis
+                        let rotationAngle = Float(value.translation.width * .pi / 180) 
+                        let rotation = simd_quatf(angle: rotationAngle, axis: SIMD3<Float>(0, 1, 0)) 
                         plane.orientation *= rotation
                     }
                 }
                 .onEnded { _ in
-                    // When the drag ends, release the reference to the plane.
                     draggedPlane = nil
                 }
             )
@@ -197,14 +186,12 @@ struct OstoetomyPlanView: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        // The button is now in ImmersiveControlsView
                     }
                 }
             }
             .task {
                 do {
                     try await arkitSession.run([worldTracking])
-                    // Continuously query for DeviceAnchor transform
                     for await update in worldTracking.anchorUpdates {
                         switch update.event {
                         case .added, .updated:
@@ -213,7 +200,6 @@ struct OstoetomyPlanView: View {
                                 print("DEBUG: DeviceAnchor Transform (from task): \(deviceAnchorTransform)")
                             }
                         case .removed:
-                            // Handle removed anchor if necessary
                             break
                         }
                     }
@@ -224,7 +210,6 @@ struct OstoetomyPlanView: View {
     }
 
     func handleTapWithEntityTarget(value: EntityTargetValue<SpatialTapGesture.Value>) {
-        // Extract the gesture value from the entity target value
         let gestureValue = value.gestureValue
         handleTap(value: gestureValue)
     }
@@ -236,35 +221,27 @@ struct OstoetomyPlanView: View {
             return
         }
 
-        // The tap's 3D location on the entity's surface
-        let tapWorldPosition = value.location3D.vector // Use the extension
+        let tapWorldPosition = value.location3D.vector 
 
-        // To get the surface normal, we perform a raycast.
-        // The ray starts just "outside" the tapped point (towards the camera)
-        // and ends just "inside" the tapped point. This is more robust than
-        // casting from the camera itself.
         let cameraPosition = deviceAnchorTransform.translation
         let vectorFromCamera = normalize(tapWorldPosition - cameraPosition)
 
-        // Start the ray slightly in front of the tapped surface
-        let rayOrigin = tapWorldPosition - vectorFromCamera * 0.1 // 10 cm in front
-        // End the ray slightly behind the tapped surface
-        let rayEnd = tapWorldPosition + vectorFromCamera * 0.1 // 10 cm behind
+        let rayOrigin = tapWorldPosition - vectorFromCamera * 0.1 
+        let rayEnd = tapWorldPosition + vectorFromCamera * 0.1
 
         if let hitResult = rootContentEntity.scene?.raycast(from: rayOrigin, to: rayEnd, query: .any).first {
             
-            // Ensure the hit is on the baseModel (Mandible) by checking the entity and its ancestors.
             var entity: Entity? = hitResult.entity
-            var isBaseModelHit = false
+            var isMandibleHit = false
             while entity != nil {
-                if entity == baseModel {
-                    isBaseModelHit = true
+                if entity == mandibleModel {
+                    isMandibleHit = true
                     break
                 }
                 entity = entity?.parent
             }
 
-            if isBaseModelHit {
+            if isMandibleHit {
                 let hitPosition = hitResult.position
                 let hitNormal = hitResult.normal
 
@@ -273,19 +250,19 @@ struct OstoetomyPlanView: View {
                     firstTapPoint = hitPosition
                     firstTapNormal = hitNormal
                     tapPhase = .waitingForSecondTap
-                    addTapMarker(at: hitPosition, color: .yellow) // Visual feedback
+                    addTapMarker(at: hitPosition, color: .yellow) 
                     print("DEBUG: First tap recorded at \(hitPosition)")
                 case .waitingForSecondTap:
                     secondTapPoint = hitPosition
                     secondTapNormal = hitNormal
                     tapPhase = .readyToSpawn
-                    addTapMarker(at: hitPosition, color: .orange) // Visual feedback
+                    addTapMarker(at: hitPosition, color: .orange) 
                     print("DEBUG: Second tap recorded at \(hitPosition)")
                     spawnPlaneFromTwoTaps()
                     resetTapState()
                 case .readyToSpawn:
                     resetTapState()
-                    handleTap(value: value) // Re-process the tap as the first tap
+                    handleTap(value: value) 
                 }
             } else {
                 print("DEBUG: Tap did not hit the base model. Hit \(hitResult.entity.name) instead.")
@@ -296,7 +273,7 @@ struct OstoetomyPlanView: View {
     }
 
     func addTapMarker(at position: SIMD3<Float>, color: UIColor) {
-        let markerMesh = MeshResource.generateSphere(radius: 0.005) // 5mm sphere
+        let markerMesh = MeshResource.generateSphere(radius: 0.005) 
         let markerMaterial = SimpleMaterial(color: color, isMetallic: false)
         let markerEntity = ModelEntity(mesh: markerMesh, materials: [markerMaterial])
         markerEntity.position = position
@@ -307,7 +284,7 @@ struct OstoetomyPlanView: View {
     func spawnPlaneFromTwoTaps() {
         guard let p1 = firstTapPoint, let n1 = firstTapNormal,
               let p2 = secondTapPoint, let n2 = secondTapNormal,
-              let bm = baseModel else { // Removed rootContentEntity
+              let bm = mandibleModel else { 
             print("DEBUG: Missing tap points or base model. Cannot spawn plane.")
             return
         }

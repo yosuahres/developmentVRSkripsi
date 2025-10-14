@@ -84,6 +84,19 @@ class AppState: ObservableObject {
 
     func didLeaveImmersiveSpace() {
         immersiveSpaceState = .closed
+        resetCaseState()
+    }
+    
+    func resetCaseState() {
+        rulerManager = RulerManager()
+        planePositions = []
+        rootContentEntity = nil
+        isMaxillaVisible = true
+        isMandibleVisible = true
+        maxillaOpacityToggle = true
+        mandibleOpacityToggle = true
+        currentTargetSide = .left
+        selectedCaseGroup = nil
     }
     
     func toggleMaxillaVisibility() {
@@ -113,6 +126,7 @@ class AppState: ObservableObject {
     func closeControlsWindow(dismissWindow: DismissWindowAction) async {
         dismissWindow(id: "controls")
         controlsWindowState = .closed
+        resetCaseState()
     }
     
 }

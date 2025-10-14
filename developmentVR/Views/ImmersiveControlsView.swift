@@ -105,13 +105,13 @@ struct ImmersiveControlsView: View {
                             }
                             
                             // Target Side Selector
-                            Picker("Target Side", selection: $appState.currentTargetSide) {
-                                Text("Left").tag(TargetSide.left)
-                                Text("Right").tag(TargetSide.right)
-                            }
-                            .pickerStyle(.segmented)
-                            .frame(width: 300)
-                            .padding(.top, 20)
+                            // Picker("Target Side", selection: $appState.currentTargetSide) {
+                            //     Text("Left").tag(TargetSide.left)
+                            //     Text("Right").tag(TargetSide.right)
+                            // }
+                            // .pickerStyle(.segmented)
+                            // .frame(width: 300)
+                            // .padding(.top, 20)
                             
                         }
                         Spacer()
@@ -129,8 +129,12 @@ struct ImmersiveControlsView: View {
                                 openWindow(id: "main")
                             }
                         }
-                        .buttonStyle(.bordered)
-                        .controlSize(.large)
+                        .font(.system(size: 80))
+                        .fontWeight(.bold)
+                        .padding(50)
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.extraLarge)
+                        .hoverEffect()
                         Spacer()
                     }
                 }

@@ -9,13 +9,9 @@ import SwiftUI
 import RealityKit
 import RealityKitContent
 
-enum TargetSide {
-    case left
-    case right
-}
-
 @MainActor
-class AppState: ObservableObject {
+@Observable
+class AppState {
     let immersiveSpaceID = "ImmersiveSpace"
     let caseGroupLoader = CaseGroupLoader()
     
@@ -33,7 +29,6 @@ class AppState: ObservableObject {
     @Published var isMandibleVisible: Bool = true
     @Published var maxillaOpacityToggle: Bool = true
     @Published var mandibleOpacityToggle: Bool = true
-    @Published var currentTargetSide: TargetSide = .left
     var maxillaOpacity: Float {
         return maxillaOpacityToggle ? 1.0 : 0.5
     }
@@ -81,6 +76,26 @@ class AppState: ObservableObject {
             await caseGroupLoader.loadCaseGroups(DummyFragmentData.caseGroups)
         }
     }
+    
+//    func startTracking() async -> ObjectTrackingProvider? {
+//        guard let selectedFragmentGroup else {
+//            fatalError("No selected fragment group to start tracking")
+//        }
+//        
+//        // Run a new provider every time when entering the immersive space.
+//        let objectTracking = ObjectTrackignProvider(referenceObjects: [selectedFragmentGroup.referenceObject])
+//        
+//        do {
+//            try await ARKitSession.run([objectTracking])
+//        } catch {
+//            printf("Error: \(error)")
+//            return nil
+//        }
+//        
+//        self.objectTracking = objectTracking
+//        
+//        return objectTracking
+//    }
 
     func didLeaveImmersiveSpace() {
         immersiveSpaceState = .closed
@@ -95,7 +110,6 @@ class AppState: ObservableObject {
         isMandibleVisible = true
         maxillaOpacityToggle = true
         mandibleOpacityToggle = true
-        currentTargetSide = .left
         selectedCaseGroup = nil
     }
     

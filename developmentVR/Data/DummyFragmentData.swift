@@ -9,7 +9,6 @@ import Foundation
 
 struct DummyFragmentData {
     static let caseGroups: [CaseGroup] = [
-      
         CaseGroup(
             usdzModelNames: ["CATALUNYA FENDA AUFAA OTILA_Mandibula_001", "CATALUNYA FENDA AUFAA OTILA_Maxilla_001"],
             name: "Mandible & Maxilla Case 1",

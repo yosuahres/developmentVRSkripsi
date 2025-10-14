@@ -10,7 +10,6 @@ import RealityKit
 import RealityKitContent
 
 struct Gestures {
-
     static func dragGesture(modelEntity: Binding<ModelEntity?>, initialTransform: Binding<Transform?>) -> some Gesture {
         DragGesture()
             .targetedToAnyEntity()

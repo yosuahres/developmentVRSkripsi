@@ -14,6 +14,7 @@ struct ImmersiveControlsView: View {
     
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
+    
     @State private var isMainWindowVisible = false
     
     var body: some View {
@@ -137,6 +138,24 @@ struct ImmersiveControlsView: View {
                         .hoverEffect()
                         Spacer()
                     }
+                    
+                    HStack {
+                        Button("Start Tracking") {
+                            Task {
+                                await appState.closeControlsWindow(dismissWindow: dismissWindow)
+                                await dismissImmersiveSpace()
+                                appState.immersiveSpaceState = .closed
+                                openWindow(id: "main")
+                            }
+                        }
+                    }
+                    .font(.system(size: 80))
+                    .fontWeight(.bold)
+                    .padding(50)
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.extraLarge)
+                    .hoverEffect()
+                    Spacer()
                 }
             }
         }

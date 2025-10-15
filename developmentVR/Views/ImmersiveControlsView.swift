@@ -142,10 +142,7 @@ struct ImmersiveControlsView: View {
                     HStack {
                         Button("Start Tracking") {
                             Task {
-                                await appState.closeControlsWindow(dismissWindow: dismissWindow)
-                                await dismissImmersiveSpace()
-                                appState.immersiveSpaceState = .closed
-                                openWindow(id: "main")
+                                await appState.startARSession(openWindow: openWindow, dismissImmersiveSpace: dismissImmersiveSpace)
                             }
                         }
                     }
@@ -160,7 +157,7 @@ struct ImmersiveControlsView: View {
             }
         }
         .padding()
-        .frame(width: 700, height: 800)
+        .frame(width: 700, height: 1000)
         .glassBackgroundEffect()
     }
 }

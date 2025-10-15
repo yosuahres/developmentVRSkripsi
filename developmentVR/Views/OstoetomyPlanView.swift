@@ -315,8 +315,7 @@ struct OstoetomyPlanView: View {
         // Adjust plane size to be more visible relative to the scaled model (assuming model is in mm)
         let planeSize: Float = 0.02 // 2cm x 2cm
         let planeMesh = MeshResource.generatePlane(width: planeSize, depth: planeSize)
-        let color: UIColor = appState.currentTargetSide == .left ? .green : .red
-        let material = SimpleMaterial(color: color, isMetallic: false)
+        let material = SimpleMaterial(color: .red, isMetallic: false)
         let planeEntity = ModelEntity(mesh: planeMesh, materials: [material])
 
         // Apply the calculated transform

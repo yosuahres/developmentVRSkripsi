@@ -8,10 +8,11 @@
 import SwiftUI
 import RealityKit
 import RealityKitContent
+import ARKit
 
 @MainActor
-@Observable
-class AppState {
+//@Observable
+class AppState : ObservableObject {
     let immersiveSpaceID = "ImmersiveSpace"
     let caseGroupLoader = CaseGroupLoader()
     
@@ -29,6 +30,7 @@ class AppState {
     @Published var isMandibleVisible: Bool = true
     @Published var maxillaOpacityToggle: Bool = true
     @Published var mandibleOpacityToggle: Bool = true
+    
     var maxillaOpacity: Float {
         return maxillaOpacityToggle ? 1.0 : 0.5
     }
@@ -71,31 +73,32 @@ class AppState {
         }
     }
 
+    @Published var isARSessionActive: Bool = false
+    @Published var arKitSession: ARKitSession?
+
     init() {
         Task {
             await caseGroupLoader.loadCaseGroups(DummyFragmentData.caseGroups)
         }
     }
     
-//    func startTracking() async -> ObjectTrackingProvider? {
-//        guard let selectedFragmentGroup else {
-//            fatalError("No selected fragment group to start tracking")
-//        }
-//        
-//        // Run a new provider every time when entering the immersive space.
-//        let objectTracking = ObjectTrackignProvider(referenceObjects: [selectedFragmentGroup.referenceObject])
-//        
-//        do {
-//            try await ARKitSession.run([objectTracking])
-//        } catch {
-//            printf("Error: \(error)")
-//            return nil
-//        }
-//        
-//        self.objectTracking = objectTracking
-//        
-//        return objectTracking
-//    }
+    func startTracking() async {
+        // For now, we'll just run an ARKitSession without any specific providers
+        // as per user's request to not involve referenceObjects yet.
+        arKitSession = ARKitSession()
+        do {
+            try await arKitSession?.run([])
+        } catch {
+            print("Error starting ARKitSession: \(error)")
+        }
+    }
+
+    func startARSession(openWindow: OpenWindowAction, dismissImmersiveSpace: DismissImmersiveSpaceAction) async {
+        await dismissImmersiveSpace()
+        immersiveSpaceState = .closed
+        isARSessionActive = true
+        openWindow(id: "ar_session")
+    }
 
     func didLeaveImmersiveSpace() {
         immersiveSpaceState = .closed
@@ -160,6 +163,12 @@ struct developmentVRApp: App {
         }
         .windowStyle(.volumetric)
         .defaultSize(width: 300, height: 400)
+
+        WindowGroup(id: "ar_session") {
+            ObjectTrackingView(appState: appState)
+        }
+        .windowStyle(.volumetric)
+        .defaultSize(width: 600, height: 400) // Adjust size as needed
 
         ImmersiveSpace(id: appState.immersiveSpaceID) {
             OstoetomyPlanView(appState: appState)

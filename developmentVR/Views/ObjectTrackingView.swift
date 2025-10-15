@@ -10,19 +10,35 @@ import RealityKit
 import ARKit
 
 struct ObjectTrackingView: View {
-    var appState: AppState
-    var root = Entity()
-    
-    @State private var objectVisualizations: [UUID: ObjectAnchorVisualization] = [:]
-    @State private var currentVisualization: ObjectAnchorVisualization?
-    
+    @ObservedObject var appState: AppState
+    @Environment(\.dismissWindow) private var dismissWindow
+
     var body: some View {
-        RealityView { content, attachments in
-            content.add (root)
-            
+        RealityView { content in
+            // This RealityView will be initially blank as requested.
+            // ARKitSession will be run in .onAppear.
+        }
+        .onAppear {
             Task {
-//                guard let objectTracking = await appState.startTracking
+                await appState.startTracking()
             }
+        }
+        .onDisappear {
+            // Stop the ARKitSession when the view disappears
+            appState.arKitSession?.stop()
+            appState.isARSessionActive = false
+        }
+        .overlay(alignment: .bottom) {
+            Button("Stop Tracking") {
+                dismissWindow(id: "ar_session")
+                appState.isARSessionActive = false
+            }
+            .font(.system(size: 40))
+            .fontWeight(.bold)
+            .padding(30)
+            .buttonStyle(.borderedProminent)
+            .controlSize(.extraLarge)
+            .hoverEffect()
         }
     }
 }

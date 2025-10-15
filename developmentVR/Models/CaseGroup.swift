@@ -16,8 +16,14 @@ struct CaseGroup: Identifiable, Hashable {
 }
 
 struct LoadedCaseGroup: Identifiable {
+    //vr
     let id = UUID()
     let group: CaseGroup
     let usdzEntities: [Entity?]
     let usdzURLs: [URL?]
+    
+    //ar
+//    let referenceObject: ReferenceObject
 }
+
+

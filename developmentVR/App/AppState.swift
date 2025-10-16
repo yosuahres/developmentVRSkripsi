@@ -30,6 +30,10 @@ class AppState : ObservableObject {
     @Published var isMandibleVisible: Bool = true
     @Published var maxillaOpacityToggle: Bool = true
     @Published var mandibleOpacityToggle: Bool = true
+    @Published var isARSessionActive: Bool = false
+    
+    @Published var spatialTrackingSession: SpatialTrackingSession?
+    @Published var indexFingerTipEntity: ModelEntity?
     
     var maxillaOpacity: Float {
         return maxillaOpacityToggle ? 1.0 : 0.5
@@ -73,8 +77,6 @@ class AppState : ObservableObject {
         }
     }
 
-    @Published var isARSessionActive: Bool = false
-    @Published var arKitSession: ARKitSession?
 
     init() {
         Task {
@@ -82,15 +84,21 @@ class AppState : ObservableObject {
         }
     }
     
-    func startTracking() async {
-        // For now, we'll just run an ARKitSession without any specific providers
-        // as per user's request to not involve referenceObjects yet.
-        arKitSession = ARKitSession()
+    func startHandTrackingSession() async {
+        spatialTrackingSession = SpatialTrackingSession()
+        let configuration = SpatialTrackingSession.Configuration(tracking: [.hand])
         do {
-            try await arKitSession?.run([])
+            try await spatialTrackingSession?.run(configuration)
+            print("DEBUG: SpatialTrackingSession for hand tracking started.")
         } catch {
-            print("Error starting ARKitSession: \(error)")
+            print("Error starting SpatialTrackingSession: \(error)")
         }
+    }
+    
+    func stopHandTrackingSession() {
+        spatialTrackingSession = nil 
+        indexFingerTipEntity = nil
+        print("DEBUG: SpatialTrackingSession for hand tracking stopped.")
     }
 
     func startARSession(openWindow: OpenWindowAction, dismissImmersiveSpace: DismissImmersiveSpaceAction) async {
@@ -168,7 +176,7 @@ struct developmentVRApp: App {
             ObjectTrackingView(appState: appState)
         }
         .windowStyle(.volumetric)
-        .defaultSize(width: 600, height: 400) // Adjust size as needed
+        .defaultSize(width: 600, height: 400)
 
         ImmersiveSpace(id: appState.immersiveSpaceID) {
             OstoetomyPlanView(appState: appState)

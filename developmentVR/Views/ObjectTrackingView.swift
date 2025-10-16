@@ -12,24 +12,22 @@ import ARKit
 struct ObjectTrackingView: View {
     @ObservedObject var appState: AppState
     @Environment(\.dismissWindow) private var dismissWindow
+    @State var arKitSession = ARKitSession()
 
     var body: some View {
         RealityView { content in
-            // This RealityView will be initially blank as requested.
-            // ARKitSession will be run in .onAppear.
+            //empty
         }
         .onAppear {
-            Task {
-                await appState.startTracking()
-            }
+            appState.isARSessionActive = true
         }
         .onDisappear {
-            // Stop the ARKitSession when the view disappears
-            appState.arKitSession?.stop()
+            arKitSession.stop()
             appState.isARSessionActive = false
         }
         .overlay(alignment: .bottom) {
             Button("Stop Tracking") {
+                arKitSession.stop()
                 dismissWindow(id: "ar_session")
                 appState.isARSessionActive = false
             }

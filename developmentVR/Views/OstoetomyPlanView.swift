@@ -12,11 +12,11 @@ import RealityKitContent
 struct OstoetomyPlanView: View {
     // state manager
     @ObservedObject var appState: AppState
-    @StateObject private var planeManager: PlaneManager 
+    @StateObject private var planeManager: PlaneManager
 
     @State private var objectAnchorVisualizations: [ObjectAnchorVisualization] = []
     @State private var modelEntities: [ModelEntity?] = []
-    @State private var spawnedPlanes: [Entity] = [] 
+    @State private var spawnedPlanes: [Entity] = []
     @State private var mandibleAnchorWorldPosition: SIMD3<Float> = .zero
     @State private var initialTransform: Transform? = nil
     @State private var initialRotation: simd_quatf? = nil
@@ -24,12 +24,12 @@ struct OstoetomyPlanView: View {
     @State private var mandibleModel: ModelEntity?
     @State private var maxillaModel: ModelEntity?
     @State private var activeModel: ModelEntity?
-
     private let realWorldScale: Float = 100.0
 
     init(appState: AppState) {
         self.appState = appState
-        _planeManager = StateObject(wrappedValue: PlaneManager(appState: appState)) 
+        let initialPlaneManager: PlaneManager = PlaneManager(appState: appState)
+        _planeManager = StateObject(wrappedValue: initialPlaneManager)
     }
 
     var body: some View {
@@ -37,7 +37,7 @@ struct OstoetomyPlanView: View {
             RealityView { content in
                 let rootEntity = Entity()
                 appState.rootContentEntity = rootEntity
-                planeManager.rootContentEntity = rootEntity 
+                planeManager.rootContentEntity = rootEntity
                 content.add(rootEntity)
                 
                 if let selectedCaseGroup = appState.selectedCaseGroup,
@@ -65,7 +65,7 @@ struct OstoetomyPlanView: View {
                                     model.components.set(InputTargetComponent())
                                     model.generateCollisionShapes(recursive: true)
                                     model.components.set(CollisionComponent(
-                                        shapes: model.model?.mesh.contents.generateCollisionShapes() ?? [.generateBox(size: .zero)],
+                                        shapes: model.collision?.shapes ?? [.generateBox(size: .zero)],
                                         filter: .init(group: PlaneManager.modelCollisionGroup, mask: PlaneManager.indexFingerCollisionGroup)
                                     ))
 
@@ -78,7 +78,7 @@ struct OstoetomyPlanView: View {
                                         // set initial opacity for Mandible
                                         model.components.set(OpacityComponent(opacity: appState.mandibleOpacity))
                                         mandibleModel = model
-                                        planeManager.mandibleModel = model 
+                                        planeManager.mandibleModel = model
                                     }
                                 }
 
@@ -117,7 +117,7 @@ struct OstoetomyPlanView: View {
                 }
 
                 await appState.startHandTrackingSession()
-                let indexFingerAnchor = AnchorEntity(.hand(.right, location: .finger(.index, .tip)), trackingMode: .continuous)
+                let indexFingerAnchor = AnchorEntity(.hand(.right, location: .indexFingerTip), trackingMode: .continuous)
                 
                 let sphereMesh = MeshResource.generateSphere(radius: 0.005) // 5mm radius
                 let sphereMaterial = SimpleMaterial(color: .cyan, isMetallic: false)
@@ -134,9 +134,12 @@ struct OstoetomyPlanView: View {
                 appState.indexFingerTipEntity = sphereEntity
                 planeManager.indexFingerTipEntity = sphereEntity
 
-                content.subscriptions.append(content.scene.subscribe(to: CollisionEvents.Began.self, on: indexFingerAnchor) { event in
-                    self.planeManager.handleIndexFingerCollision(event: event, rootEntity: rootEntity, modelEntities: self.modelEntities)
-                })
+                // content.subscriptions.append(content.scene.subscribe(to: CollisionEvents.Began.self, on: indexFingerAnchor) { event in
+                if let scene = rootEntity.scene {
+                    _ = scene.subscribe(to: CollisionEvents.Began.self, on: indexFingerAnchor) { event in
+                        self.planeManager.handleIndexFingerCollision(event: event, rootEntity: rootEntity, modelEntities: self.modelEntities)
+                    }
+                }
                 
             } update: { content in
                 if let selectedCaseGroup = appState.selectedCaseGroup,
@@ -156,25 +159,38 @@ struct OstoetomyPlanView: View {
                 }
                 for plane in planeManager.cuttingPlanes {
                     if plane.parent == nil {
-                        rootEntity.addChild(plane)
+                        appState.rootContentEntity?.addChild(plane)
                     }
                 }
             }
-            .gesture(Gestures.dragGesture(modelEntity: $activeModel, initialTransform: $initialTransform))
-            .gesture(Gestures.rotationGesture(modelEntity: $activeModel, initialRotation: $initialRotation))
-            .gesture(Gestures.magnificationGesture(modelEntity: $activeModel, initialScale: $initialScale))
-            .gesture(DragGesture() 
-                .targetedToAnyEntity()
-                .onChanged { value in
-                    planeManager.handlePlaneDragChanged(value: value)
-                }
-                .onEnded { _ in
-                    planeManager.handlePlaneDragEnded()
-                }
+            .gestures(
+                Gestures.dragGesture(modelEntity: $activeModel, initialTransform: $initialTransform),
+                Gestures.rotationGesture(modelEntity: $activeModel, initialRotation: $initialRotation),
+                Gestures.magnificationGesture(modelEntity: $activeModel, initialScale: $initialScale),
+                DragGesture()
+                    .targetedToAnyEntity()
+                    .onChanged { value in
+                        planeManager.handlePlaneDragChanged(value: value)
+                    }
+                    .onEnded { _ in
+                        planeManager.handlePlaneDragEnded()
+                    }
             )
             .onDisappear {
                 appState.stopHandTrackingSession()
             }
         }
+    }
+}
+
+extension View {
+    func gestures<G1: Gesture, G2: Gesture, G3: Gesture, G4: Gesture>(
+        _ g1: G1, _ g2: G2, _ g3: G3, _ g4: G4
+    ) -> some View {
+        self
+            .gesture(g1)
+            .gesture(g2)
+            .gesture(g3)
+            .gesture(g4)
     }
 }

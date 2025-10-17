@@ -17,17 +17,19 @@ class PlaneManager: ObservableObject {
     var appState: AppState
     var mandibleModel: ModelEntity?
     var rootContentEntity: Entity?
-    var indexFingerTipEntity: ModelEntity?
+    var rightIndexFingerTipEntity: ModelEntity?
+    var leftIndexFingerTipEntity: ModelEntity?
 
     // collision
     static let indexFingerCollisionGroup = CollisionGroup(rawValue: 1 << 0)
     static let modelCollisionGroup = CollisionGroup(rawValue: 1 << 1)
 
-    init(appState: AppState, mandibleModel: ModelEntity? = nil, rootContentEntity: Entity? = nil, indexFingerTipEntity: ModelEntity? = nil) {
+    init(appState: AppState, mandibleModel: ModelEntity? = nil, rootContentEntity: Entity? = nil, rightIndexFingerTipEntity: ModelEntity? = nil, leftIndexFingerTipEntity: ModelEntity? = nil) {
         self.appState = appState
         self.mandibleModel = mandibleModel
         self.rootContentEntity = rootContentEntity
-        self.indexFingerTipEntity = indexFingerTipEntity
+        self.rightIndexFingerTipEntity = rightIndexFingerTipEntity
+        self.leftIndexFingerTipEntity = leftIndexFingerTipEntity
     }
 
     func handleIndexFingerCollision(event: CollisionEvents.Began, rootEntity: Entity, modelEntities: [ModelEntity?]) {
@@ -37,14 +39,14 @@ class PlaneManager: ObservableObject {
         let indexFingerSphere: ModelEntity
         let collidedModel: ModelEntity
 
-        if entityA == appState.indexFingerTipEntity {
+        if entityA == rightIndexFingerTipEntity || entityA == leftIndexFingerTipEntity {
             indexFingerSphere = entityA
             collidedModel = entityB
-        } else if entityB == appState.indexFingerTipEntity {
+        } else if entityB == rightIndexFingerTipEntity || entityB == leftIndexFingerTipEntity {
             indexFingerSphere = entityB
             collidedModel = entityA
         } else {
-            return 
+            return
         }
 
         guard modelEntities.contains(collidedModel) else { return }

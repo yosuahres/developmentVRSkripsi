@@ -8,6 +8,7 @@
 import SwiftUI
 import RealityKit
 import RealityKitContent
+import ARKit
 
 struct OstoetomyPlanView: View {
     // state manager
@@ -20,11 +21,13 @@ struct OstoetomyPlanView: View {
     @State private var mandibleAnchorWorldPosition: SIMD3<Float> = .zero
     @State private var initialTransform: Transform? = nil
     @State private var initialRotation: simd_quatf? = nil
-    @State private var initialScale: SIMD3<Float>? = nil
     @State private var mandibleModel: ModelEntity?
     @State private var maxillaModel: ModelEntity?
     @State private var activeModel: ModelEntity?
     private let realWorldScale: Float = 100.0
+    
+    @State var arKitSession = ARKitSession()
+    @State var handTrackingProvider = HandTrackingProvider()
 
     init(appState: AppState) {
         self.appState = appState
@@ -116,27 +119,27 @@ struct OstoetomyPlanView: View {
                     }
                 }
 
-                await appState.startHandTrackingSession()
-                let indexFingerAnchor = AnchorEntity(.hand(.right, location: .indexFingerTip), trackingMode: .continuous)
-                
-                let sphereMesh = MeshResource.generateSphere(radius: 0.005) // 5mm radius
-                let sphereMaterial = SimpleMaterial(color: .cyan, isMetallic: false)
-                let sphereEntity = ModelEntity(mesh: sphereMesh, materials: [sphereMaterial])
-                sphereEntity.components.set(CollisionComponent(
-                    shapes: [.generateSphere(radius: 0.005)],
-                    filter: .init(group: PlaneManager.indexFingerCollisionGroup, mask: PlaneManager.modelCollisionGroup)
-                ))
-                sphereEntity.components.set(PhysicsBodyComponent(massProperties: .default, material: .default, mode: .kinematic))
-                sphereEntity.components.set(InputTargetComponent())
+                // Create an anchor for the RIGHT index finger tip
+                let rightHandAnchor = AnchorEntity(.hand(.right, location: .indexFingerTip), trackingMode: .continuous)
+                let rightSphere = createIndexFingerSphere()
+                rightHandAnchor.addChild(rightSphere)
+                rootEntity.addChild(rightHandAnchor)
 
-                indexFingerAnchor.addChild(sphereEntity)
-                rootEntity.addChild(indexFingerAnchor)
-                appState.indexFingerTipEntity = sphereEntity
-                planeManager.indexFingerTipEntity = sphereEntity
+                // Create an anchor for the LEFT index finger tip
+                let leftHandAnchor = AnchorEntity(.hand(.left, location: .indexFingerTip), trackingMode: .continuous)
+                let leftSphere = createIndexFingerSphere()
+                leftHandAnchor.addChild(leftSphere)
+                rootEntity.addChild(leftHandAnchor)
 
-                // content.subscriptions.append(content.scene.subscribe(to: CollisionEvents.Began.self, on: indexFingerAnchor) { event in
+                // Update PlaneManager with both index finger tip entities
+                planeManager.rightIndexFingerTipEntity = rightSphere
+                planeManager.leftIndexFingerTipEntity = leftSphere
+
                 if let scene = rootEntity.scene {
-                    _ = scene.subscribe(to: CollisionEvents.Began.self, on: indexFingerAnchor) { event in
+                    _ = scene.subscribe(to: CollisionEvents.Began.self, on: rightHandAnchor) { event in
+                        self.planeManager.handleIndexFingerCollision(event: event, rootEntity: rootEntity, modelEntities: self.modelEntities)
+                    }
+                    _ = scene.subscribe(to: CollisionEvents.Began.self, on: leftHandAnchor) { event in
                         self.planeManager.handleIndexFingerCollision(event: event, rootEntity: rootEntity, modelEntities: self.modelEntities)
                     }
                 }
@@ -166,7 +169,6 @@ struct OstoetomyPlanView: View {
             .gestures(
                 Gestures.dragGesture(modelEntity: $activeModel, initialTransform: $initialTransform),
                 Gestures.rotationGesture(modelEntity: $activeModel, initialRotation: $initialRotation),
-                Gestures.magnificationGesture(modelEntity: $activeModel, initialScale: $initialScale),
                 DragGesture()
                     .targetedToAnyEntity()
                     .onChanged { value in
@@ -176,21 +178,38 @@ struct OstoetomyPlanView: View {
                         planeManager.handlePlaneDragEnded()
                     }
             )
-            .onDisappear {
-                appState.stopHandTrackingSession()
+            .task {
+                do {
+                    try await arKitSession.run([handTrackingProvider])
+                    print("DEBUG: ARKitSession with HandTrackingProvider started.")
+                } catch {
+                    print("Error starting ARKitSession with HandTrackingProvider: \(error)")
+                }
             }
         }
+    }
+
+    private func createIndexFingerSphere() -> ModelEntity {
+        let sphereMesh = MeshResource.generateSphere(radius: 0.005) // 5mm radius
+        let sphereMaterial = SimpleMaterial(color: .cyan, isMetallic: false)
+        let sphereEntity = ModelEntity(mesh: sphereMesh, materials: [sphereMaterial])
+        sphereEntity.components.set(CollisionComponent(
+            shapes: [.generateSphere(radius: 0.005)],
+            filter: .init(group: PlaneManager.indexFingerCollisionGroup, mask: PlaneManager.modelCollisionGroup)
+        ))
+        sphereEntity.components.set(PhysicsBodyComponent(massProperties: .default, material: .default, mode: .kinematic))
+        sphereEntity.components.set(InputTargetComponent())
+        return sphereEntity
     }
 }
 
 extension View {
-    func gestures<G1: Gesture, G2: Gesture, G3: Gesture, G4: Gesture>(
-        _ g1: G1, _ g2: G2, _ g3: G3, _ g4: G4
+    func gestures<G1: Gesture, G2: Gesture, G3: Gesture>(
+        _ g1: G1, _ g2: G2, _ g3: G3
     ) -> some View {
         self
             .gesture(g1)
             .gesture(g2)
             .gesture(g3)
-            .gesture(g4)
     }
 }

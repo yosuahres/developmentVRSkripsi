@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>NSHandsTrackingUsageDescription</key>
-	<string>This app uses hand tracking to attach a sphere to the user&apos;s hand</string>
+	<string>Enable to interact in VR mode</string>
 	<key>NSWorldSensingUsageDescription</key>
-	<string>Scan your environment to detect objects</string>
+	<string>Enable to interact in AR mode</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationPreferredDefaultSceneSessionRole</key>

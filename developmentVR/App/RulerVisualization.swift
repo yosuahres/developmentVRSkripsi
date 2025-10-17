@@ -62,7 +62,7 @@ class RulerVisualization {
         textEntity.look(at: midpoint + SIMD3<Float>(0, 0, 1), from: textEntity.position, upVector: SIMD3<Float>(0, 1, 0), relativeTo: nil)
         entity.addChild(textEntity)
 
-        let endpointRadius: Float = 0.005
+        let endpointRadius: Float = 0.01
         let startSphere = createEndpointSphere(at: startPosition, color: lineColor, radius: endpointRadius)
         let endSphere = createEndpointSphere(at: endPosition, color: lineColor, radius: endpointRadius)
         

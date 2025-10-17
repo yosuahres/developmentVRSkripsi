@@ -26,7 +26,7 @@ struct Gestures {
 
                 let dragTranslation = value.translation3D
                 var newTransform = initialTransform.wrappedValue!
-                newTransform.translation += SIMD3<Float>(Float(dragTranslation.x), Float(dragTranslation.y), Float(dragTranslation.z))
+                newTransform.translation += SIMD3<Float>(Float(-dragTranslation.x), Float(dragTranslation.y), Float(dragTranslation.z))
                 model.transform = newTransform
             }
             .onEnded { _ in
@@ -61,28 +61,4 @@ struct Gestures {
             }
     }
     
-    static func magnificationGesture(modelEntity: Binding<ModelEntity?>, initialScale: Binding<SIMD3<Float>?>) -> some Gesture {
-        MagnifyGesture()
-            .targetedToAnyEntity()
-            .onChanged { value in
-                if modelEntity.wrappedValue == nil {
-                    modelEntity.wrappedValue = value.entity as? ModelEntity
-                }
-                
-                guard let model = modelEntity.wrappedValue else { return }
-
-                if initialScale.wrappedValue == nil {
-                    initialScale.wrappedValue = model.transform.scale
-                }
-                
-                let magnification = Float(value.magnification)
-                var newScale = initialScale.wrappedValue!
-                newScale *= magnification
-                model.transform.scale = newScale
-            }
-            .onEnded { _ in
-                initialScale.wrappedValue = nil
-                modelEntity.wrappedValue = nil
-            }
-    }
 }

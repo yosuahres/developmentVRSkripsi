@@ -84,23 +84,6 @@ class AppState : ObservableObject {
         }
     }
     
-    func startHandTrackingSession() async {
-        spatialTrackingSession = SpatialTrackingSession()
-        let configuration = SpatialTrackingSession.Configuration(tracking: [.hand])
-        do {
-            try await spatialTrackingSession?.run(configuration)
-            print("DEBUG: SpatialTrackingSession for hand tracking started.")
-        } catch {
-            print("Error starting SpatialTrackingSession: \(error)")
-        }
-    }
-    
-    func stopHandTrackingSession() {
-        spatialTrackingSession = nil 
-        indexFingerTipEntity = nil
-        print("DEBUG: SpatialTrackingSession for hand tracking stopped.")
-    }
-
     func startARSession(openWindow: OpenWindowAction, dismissImmersiveSpace: DismissImmersiveSpaceAction) async {
         await dismissImmersiveSpace()
         immersiveSpaceState = .closed

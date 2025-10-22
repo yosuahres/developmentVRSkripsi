@@ -22,7 +22,7 @@ struct OstoetomyPlanView: View {
     @State private var initialTransform: Transform? = nil
     @State private var initialRotation: simd_quatf? = nil
     @State private var mandibleModel: ModelEntity?
-    @State private var maxillaModel: ModelEntity?
+    @State private var maxillaModel: ModelEntity? 
     @State private var activeModel: ModelEntity?
     private let realWorldScale: Float = 100.0
     
@@ -76,6 +76,7 @@ struct OstoetomyPlanView: View {
                                         model.isEnabled = appState.isMaxillaVisible
                                         // set initial opacity for Maxilla
                                         model.components.set(OpacityComponent(opacity: appState.maxillaOpacity))
+                                        maxillaModel = model // Assign Maxilla model
                                     } else if usdzURL.lastPathComponent.contains("Mandibula") {
                                         model.isEnabled = appState.isMandibleVisible
                                         // set initial opacity for Mandible
@@ -119,21 +120,28 @@ struct OstoetomyPlanView: View {
                     }
                 }
 
-                // Create an anchor for the RIGHT index finger tip
                 let rightHandAnchor = AnchorEntity(.hand(.right, location: .indexFingerTip), trackingMode: .continuous)
                 let rightSphere = createIndexFingerSphere()
                 rightHandAnchor.addChild(rightSphere)
                 rootEntity.addChild(rightHandAnchor)
 
-                // Create an anchor for the LEFT index finger tip
                 let leftHandAnchor = AnchorEntity(.hand(.left, location: .indexFingerTip), trackingMode: .continuous)
                 let leftSphere = createIndexFingerSphere()
                 leftHandAnchor.addChild(leftSphere)
                 rootEntity.addChild(leftHandAnchor)
 
-                // Update PlaneManager with both index finger tip entities
                 planeManager.rightIndexFingerTipEntity = rightSphere
                 planeManager.leftIndexFingerTipEntity = leftSphere
+
+                // DEBUGGGG
+                Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+                    if let rightSphere = planeManager.rightIndexFingerTipEntity {
+                        print("DEBUG: Right hand sphere position: \(rightSphere.position(relativeTo: nil))")
+                    }
+                    if let leftSphere = planeManager.leftIndexFingerTipEntity {
+                        print("DEBUG: Left hand sphere position: \(leftSphere.position(relativeTo: nil))")
+                    }
+                }
 
                 if let scene = rootEntity.scene {
                     _ = scene.subscribe(to: CollisionEvents.Began.self, on: rightHandAnchor) { event in
@@ -143,24 +151,21 @@ struct OstoetomyPlanView: View {
                         self.planeManager.handleIndexFingerCollision(event: event, rootEntity: rootEntity, modelEntities: self.modelEntities)
                     }
                 }
-                
-            } update: { content in
-                if let selectedCaseGroup = appState.selectedCaseGroup,
-                   let loadedGroup = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroup.id }) {
-                    for (index, usdzEntity) in loadedGroup.usdzEntities.enumerated() {
-                            if modelEntities.indices.contains(index), loadedGroup.usdzURLs.indices.contains(index),
-                               let model = modelEntities[index], let usdzURL = loadedGroup.usdzURLs[index] {
-                            if usdzURL.lastPathComponent.contains("Maxilla") {
-                                model.isEnabled = appState.isMaxillaVisible
-                                model.components.set(OpacityComponent(opacity: appState.maxillaOpacity))
-                            } else if usdzURL.lastPathComponent.contains("Mandibula") {
-                                model.isEnabled = appState.isMandibleVisible
-                                model.components.set(OpacityComponent(opacity: appState.mandibleOpacity))
-                            }
-                        }
-                    }
-                }
-                for plane in planeManager.cuttingPlanes {
+            }
+            .onChange(of: appState.isMaxillaVisible) { _, newValue in
+                maxillaModel?.isEnabled = newValue
+            }
+            .onChange(of: appState.maxillaOpacity) { _, newValue in
+                maxillaModel?.components.set(OpacityComponent(opacity: newValue))
+            }
+            .onChange(of: appState.isMandibleVisible) { _, newValue in
+                mandibleModel?.isEnabled = newValue
+            }
+            .onChange(of: appState.mandibleOpacity) { _, newValue in
+                mandibleModel?.components.set(OpacityComponent(opacity: newValue))
+            }
+            .onChange(of: planeManager.cuttingPlanes) { _, newPlanes in
+                for plane in newPlanes {
                     if plane.parent == nil {
                         appState.rootContentEntity?.addChild(plane)
                     }
@@ -175,6 +180,7 @@ struct OstoetomyPlanView: View {
                         planeManager.handlePlaneDragChanged(value: value)
                     }
                     .onEnded { _ in
+             
                         planeManager.handlePlaneDragEnded()
                     }
             )
@@ -190,7 +196,7 @@ struct OstoetomyPlanView: View {
     }
 
     private func createIndexFingerSphere() -> ModelEntity {
-        let sphereMesh = MeshResource.generateSphere(radius: 0.005) // 5mm radius
+        let sphereMesh = MeshResource.generateSphere(radius: 0.01) //mm
         let sphereMaterial = SimpleMaterial(color: .cyan, isMetallic: false)
         let sphereEntity = ModelEntity(mesh: sphereMesh, materials: [sphereMaterial])
         sphereEntity.components.set(CollisionComponent(
@@ -198,7 +204,6 @@ struct OstoetomyPlanView: View {
             filter: .init(group: PlaneManager.indexFingerCollisionGroup, mask: PlaneManager.modelCollisionGroup)
         ))
         sphereEntity.components.set(PhysicsBodyComponent(massProperties: .default, material: .default, mode: .kinematic))
-        sphereEntity.components.set(InputTargetComponent())
         return sphereEntity
     }
 }

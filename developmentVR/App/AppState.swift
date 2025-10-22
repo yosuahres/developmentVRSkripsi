@@ -107,6 +107,7 @@ class AppState : ObservableObject {
         selectedCaseGroup = nil
     }
     
+    // toggle on immersive control func
     func toggleMaxillaVisibility() {
         isMaxillaVisible.toggle()
     }

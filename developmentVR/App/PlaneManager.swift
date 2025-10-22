@@ -20,7 +20,7 @@ class PlaneManager: ObservableObject {
     var rightIndexFingerTipEntity: ModelEntity?
     var leftIndexFingerTipEntity: ModelEntity?
 
-    // collision
+    // add collision to model sphere and model mandible
     static let indexFingerCollisionGroup = CollisionGroup(rawValue: 1 << 0)
     static let modelCollisionGroup = CollisionGroup(rawValue: 1 << 1)
 
@@ -51,6 +51,8 @@ class PlaneManager: ObservableObject {
 
         guard modelEntities.contains(collidedModel) else { return }
 
+        print("DEBUG: Collision detected with model! Index Finger: \(indexFingerSphere.name), Collided Model: \(collidedModel.name)")
+
         let collisionPoint = indexFingerSphere.position(relativeTo: rootEntity) 
         let collisionNormal = normalize(collidedModel.position(relativeTo: rootEntity) - indexFingerSphere.position(relativeTo: rootEntity)) 
 
@@ -63,7 +65,7 @@ class PlaneManager: ObservableObject {
         let material = SimpleMaterial(color: .red, isMetallic: false)
         let planeEntity = ModelEntity(mesh: planeMesh, materials: [material])
 
-        // Orient the plane to be perpendicular to the normal
+        // perpendicular to the normal
         let zAxis = normal
         let xAxis = normalize(cross(SIMD3<Float>(0, 1, 0), zAxis)) 
         let yAxis = normalize(cross(zAxis, xAxis))

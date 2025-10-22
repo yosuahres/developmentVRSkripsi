@@ -22,7 +22,7 @@ struct OstoetomyPlanView: View {
     @State private var initialTransform: Transform? = nil
     @State private var initialRotation: simd_quatf? = nil
     @State private var mandibleModel: ModelEntity?
-    @State private var maxillaModel: ModelEntity? 
+    @State private var maxillaModel: ModelEntity?
     @State private var activeModel: ModelEntity?
     private let realWorldScale: Float = 100.0
     
@@ -37,104 +37,157 @@ struct OstoetomyPlanView: View {
 
     var body: some View {
         ZStack {
-            RealityView { content in
-                let rootEntity = Entity()
-                appState.rootContentEntity = rootEntity
-                planeManager.rootContentEntity = rootEntity
-                content.add(rootEntity)
-                
-                if let selectedCaseGroup = appState.selectedCaseGroup,
-                   let loadedGroup = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroup.id }) {
-                    
-                    let initialUserTransform = Transform(translation: [0, 1.5, -1])
-                    let userForward = initialUserTransform.rotation.act(SIMD3<Float>(x: 0, y: 0, z: -1))
-                    let spawnDistance: Float = 0.0
-                    let spawnHeight: Float = 0.0
-                    let spawnPosition = initialUserTransform.translation + (userForward * spawnDistance) + SIMD3<Float>(x: 0, y: spawnHeight, z: 0)
-                    
-                    let parentAnchor = AnchorEntity(world: spawnPosition)
-                    rootEntity.addChild(parentAnchor)
-                    
-                    objectAnchorVisualizations = []
-                    modelEntities = []
-                    
-                    for (index, _) in loadedGroup.usdzEntities.enumerated() {
-                        if let usdzURL = loadedGroup.usdzURLs[index] {
-                            do {
-                                let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, scale: 0.001) //convert to mm from m
-                                visualization.entity.transform.rotation = simd_quatf(angle: -Float.pi / 2, axis: [0, 1, 0])
-
-                                if let model = visualization.modelEntity {
-                                    model.components.set(InputTargetComponent())
-                                    model.generateCollisionShapes(recursive: true)
-                                    model.components.set(CollisionComponent(
-                                        shapes: model.collision?.shapes ?? [.generateBox(size: .zero)],
-                                        filter: .init(group: PlaneManager.modelCollisionGroup, mask: PlaneManager.indexFingerCollisionGroup)
-                                    ))
-
-                                    if usdzURL.lastPathComponent.contains("Maxilla") {
-                                        model.isEnabled = appState.isMaxillaVisible
-                                        // set initial opacity for Maxilla
-                                        model.components.set(OpacityComponent(opacity: appState.maxillaOpacity))
-                                        maxillaModel = model // Assign Maxilla model
-                                    } else if usdzURL.lastPathComponent.contains("Mandibula") {
-                                        model.isEnabled = appState.isMandibleVisible
-                                        // set initial opacity for Mandible
-                                        model.components.set(OpacityComponent(opacity: appState.mandibleOpacity))
-                                        mandibleModel = model
-                                        planeManager.mandibleModel = model
-                                    }
-                                }
-
-                                parentAnchor.addChild(visualization.entity)
-                                objectAnchorVisualizations.append(visualization)
-                                modelEntities.append(visualization.modelEntity)
-                            } catch {
-                                print("Error loading or creating visualization for model \(index): \(error)")
-                            }
+            realityViewContent 
+                .onChange(of: appState.isMaxillaVisible) { _, newValue in
+                    maxillaModel?.isEnabled = newValue
+                }
+                .onChange(of: appState.maxillaOpacity) { _, newValue in
+                    maxillaModel?.components.set(OpacityComponent(opacity: newValue))
+                }
+                .onChange(of: appState.isMandibleVisible) { _, newValue in
+                    mandibleModel?.isEnabled = newValue
+                }
+                .onChange(of: appState.mandibleOpacity) { _, newValue in
+                    mandibleModel?.components.set(OpacityComponent(opacity: newValue))
+                }
+                .onChange(of: planeManager.cuttingPlanes) { _, newPlanes in
+                    for plane in newPlanes {
+                        if plane.parent == nil {
+                            appState.rootContentEntity?.addChild(plane)
                         }
-                    }
-                    var combinedBounds: BoundingBox?
-                    for modelEntity in modelEntities {
-                        if let model = modelEntity {
-                            let modelBounds = model.visualBounds(relativeTo: parentAnchor)
-                            if combinedBounds == nil {
-                                combinedBounds = modelBounds
-                            } else {
-                                combinedBounds = combinedBounds?.union(modelBounds)
-                            }
-                        }
-                    }
-                    
-                    if let bounds = combinedBounds {
-                        parentAnchor.transform.translation -= bounds.center
-                    }
-
-                    mandibleAnchorWorldPosition = spawnPosition
-                    if let mandibleModel = mandibleModel {
-                        print("DEBUG: Base Model World Position (after adjustments): \(mandibleModel.position(relativeTo: nil))")
-                    }
-                } else {
-                    if let fallbackScene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
-                        rootEntity.addChild(fallbackScene)
                     }
                 }
+                .gesture(
+                    Gestures.dragGesture(modelEntity: $activeModel, initialTransform: $initialTransform)
+                )
+                .gesture(
+                    Gestures.rotationGesture(modelEntity: $activeModel, initialRotation: $initialRotation)
+                )
+                .gesture(
+                    planeDragGesture
+                )
+                .task {
+                    do {
+                        try await arKitSession.run([handTrackingProvider])
+                        print("DEBUG: ARKitSession with HandTrackingProvider started.")
+                    } catch {
+                        print("Error starting ARKitSession with HandTrackingProvider: \(error)")
+                    }
+                }
+        }
+    }
 
-                let rightHandAnchor = AnchorEntity(.hand(.right, location: .indexFingerTip), trackingMode: .continuous)
-                let rightSphere = createIndexFingerSphere()
-                rightHandAnchor.addChild(rightSphere)
-                rootEntity.addChild(rightHandAnchor)
+    // MARK: - Extracted Subviews & Gestures
 
-                let leftHandAnchor = AnchorEntity(.hand(.left, location: .indexFingerTip), trackingMode: .continuous)
-                let leftSphere = createIndexFingerSphere()
-                leftHandAnchor.addChild(leftSphere)
-                rootEntity.addChild(leftHandAnchor)
+    /// The main RealityView content, extracted to help the compiler.
+    private var realityViewContent: some View {
+        RealityView { content in
+            let rootEntity = Entity()
+            appState.rootContentEntity = rootEntity
+            planeManager.rootContentEntity = rootEntity
+            content.add(rootEntity)
+            
+            if let selectedCaseGroup = appState.selectedCaseGroup,
+               let loadedGroup = appState.caseGroupLoader.loadedCaseGroups.first(where: { $0.id == selectedCaseGroup.id }) {
+                
+                let initialUserTransform = Transform(translation: [0, 1.5, -1])
+                let userForward = initialUserTransform.rotation.act(SIMD3<Float>(x: 0, y: 0, z: -1))
+                let spawnDistance: Float = 0.0
+                let spawnHeight: Float = 0.0
+                let spawnPosition = initialUserTransform.translation + (userForward * spawnDistance) + SIMD3<Float>(x: 0, y: spawnHeight, z: 0)
+                
+                let parentAnchor = AnchorEntity(world: spawnPosition)
+                rootEntity.addChild(parentAnchor)
+                
+                objectAnchorVisualizations = []
+                modelEntities = []
+                
+                for (index, _) in loadedGroup.usdzEntities.enumerated() {
+                    if let usdzURL = loadedGroup.usdzURLs[index] {
+                        do {
+                            let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, scale: 0.001) //convert to mm from m
+                            visualization.entity.transform.rotation = simd_quatf(angle: -Float.pi / 2, axis: [0, 1, 0])
 
-                planeManager.rightIndexFingerTipEntity = rightSphere
-                planeManager.leftIndexFingerTipEntity = leftSphere
+                            if let model = visualization.modelEntity {
+                                model.components.set(InputTargetComponent())
+                                
+                                // MANDIBLE COLLIDER
+                                model.generateCollisionShapes(recursive: true)
+                                let generatedShapes = model.components[CollisionComponent.self]?.shapes ?? []
+                                model.components.set(CollisionComponent(
+                                    shapes: generatedShapes,
+                                    mode: .default,
+                                    filter: .init(group: PlaneManager.modelCollisionGroup, mask: PlaneManager.indexFingerCollisionGroup)
+                                ))
+                                
+                                model.components.set(PhysicsBodyComponent(
+                                    mode: .static
+                                ))
 
-                // DEBUGGGG
-                Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+                                if usdzURL.lastPathComponent.contains("Maxilla") {
+                                    model.isEnabled = appState.isMaxillaVisible
+                                    // set initial opacity for Maxilla
+                                    model.components.set(OpacityComponent(opacity: appState.maxillaOpacity))
+                                    maxillaModel = model 
+                                } else if usdzURL.lastPathComponent.contains("Mandibula") {
+                                    model.isEnabled = appState.isMandibleVisible
+                                    // set initial opacity for Mandible
+                                    model.components.set(OpacityComponent(opacity: appState.mandibleOpacity))
+                                    mandibleModel = model
+                                    planeManager.mandibleModel = model
+                                }
+                            }
+
+                            parentAnchor.addChild(visualization.entity)
+                            objectAnchorVisualizations.append(visualization)
+                            modelEntities.append(visualization.modelEntity)
+                        } catch {
+                            print("Error loading or creating visualization for model \(index): \(error)")
+                        }
+                    }
+                }
+                var combinedBounds: BoundingBox?
+                for modelEntity in modelEntities {
+                    if let model = modelEntity {
+                        let modelBounds = model.visualBounds(relativeTo: parentAnchor)
+                        if combinedBounds == nil {
+                            combinedBounds = modelBounds
+                        } else {
+                            combinedBounds = combinedBounds?.union(modelBounds)
+                        }
+                    }
+                }
+                
+                if let bounds = combinedBounds {
+                    parentAnchor.transform.translation -= bounds.center
+                }
+
+                mandibleAnchorWorldPosition = spawnPosition
+                if let mandibleModel = mandibleModel {
+                    print("DEBUG: Base Model World Position (after adjustments): \(mandibleModel.position(relativeTo: nil))")
+                }
+            } else {
+                if let fallbackScene = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
+                    rootEntity.addChild(fallbackScene)
+                }
+            }
+
+            let rightHandAnchor = AnchorEntity(.hand(.right, location: .indexFingerTip), trackingMode: .continuous)
+            let rightSphere = createIndexFingerSphere()
+            rightHandAnchor.addChild(rightSphere)
+            rootEntity.addChild(rightHandAnchor)
+
+            let leftHandAnchor = AnchorEntity(.hand(.left, location: .indexFingerTip), trackingMode: .continuous)
+            let leftSphere = createIndexFingerSphere()
+            leftHandAnchor.addChild(leftSphere)
+            rootEntity.addChild(leftHandAnchor)
+
+            planeManager.rightIndexFingerTipEntity = rightSphere
+            planeManager.leftIndexFingerTipEntity = leftSphere
+
+            // DEBUGGGG
+            Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+                Task { @MainActor in
                     if let rightSphere = planeManager.rightIndexFingerTipEntity {
                         print("DEBUG: Right hand sphere position: \(rightSphere.position(relativeTo: nil))")
                     }
@@ -142,79 +195,64 @@ struct OstoetomyPlanView: View {
                         print("DEBUG: Left hand sphere position: \(leftSphere.position(relativeTo: nil))")
                     }
                 }
-
-                if let scene = rootEntity.scene {
-                    _ = scene.subscribe(to: CollisionEvents.Began.self, on: rightHandAnchor) { event in
-                        self.planeManager.handleIndexFingerCollision(event: event, rootEntity: rootEntity, modelEntities: self.modelEntities)
-                    }
-                    _ = scene.subscribe(to: CollisionEvents.Began.self, on: leftHandAnchor) { event in
+            }
+ 
+            if let scene = rootEntity.scene {
+                _ = scene.subscribe(to: CollisionEvents.Began.self, on: rightHandAnchor) { event in
+                    Task { @MainActor in
                         self.planeManager.handleIndexFingerCollision(event: event, rootEntity: rootEntity, modelEntities: self.modelEntities)
                     }
                 }
-            }
-            .onChange(of: appState.isMaxillaVisible) { _, newValue in
-                maxillaModel?.isEnabled = newValue
-            }
-            .onChange(of: appState.maxillaOpacity) { _, newValue in
-                maxillaModel?.components.set(OpacityComponent(opacity: newValue))
-            }
-            .onChange(of: appState.isMandibleVisible) { _, newValue in
-                mandibleModel?.isEnabled = newValue
-            }
-            .onChange(of: appState.mandibleOpacity) { _, newValue in
-                mandibleModel?.components.set(OpacityComponent(opacity: newValue))
-            }
-            .onChange(of: planeManager.cuttingPlanes) { _, newPlanes in
-                for plane in newPlanes {
-                    if plane.parent == nil {
-                        appState.rootContentEntity?.addChild(plane)
+                _ = scene.subscribe(to: CollisionEvents.Began.self, on: leftHandAnchor) { event in
+                    Task { @MainActor in
+                        self.planeManager.handleIndexFingerCollision(event: event, rootEntity: rootEntity, modelEntities: self.modelEntities)
                     }
-                }
-            }
-            .gestures(
-                Gestures.dragGesture(modelEntity: $activeModel, initialTransform: $initialTransform),
-                Gestures.rotationGesture(modelEntity: $activeModel, initialRotation: $initialRotation),
-                DragGesture()
-                    .targetedToAnyEntity()
-                    .onChanged { value in
-                        planeManager.handlePlaneDragChanged(value: value)
-                    }
-                    .onEnded { _ in
-             
-                        planeManager.handlePlaneDragEnded()
-                    }
-            )
-            .task {
-                do {
-                    try await arKitSession.run([handTrackingProvider])
-                    print("DEBUG: ARKitSession with HandTrackingProvider started.")
-                } catch {
-                    print("Error starting ARKitSession with HandTrackingProvider: \(error)")
                 }
             }
         }
     }
 
+    /// The drag gesture for the cutting planes, extracted to help the compiler.
+    private var planeDragGesture: some Gesture {
+        DragGesture()
+            .targetedToAnyEntity()
+            .onChanged { value in
+                planeManager.handlePlaneDragChanged(value: value)
+            }
+            .onEnded { _ in
+                planeManager.handlePlaneDragEnded()
+            }
+    }
+
+    // SPHERE COLLIDER
     private func createIndexFingerSphere() -> ModelEntity {
-        let sphereMesh = MeshResource.generateSphere(radius: 0.01) //mm
+        let sphereMesh = MeshResource.generateSphere(radius: 0.01) // 1cm radius
         let sphereMaterial = SimpleMaterial(color: .cyan, isMetallic: false)
         let sphereEntity = ModelEntity(mesh: sphereMesh, materials: [sphereMaterial])
+
         sphereEntity.components.set(CollisionComponent(
-            shapes: [.generateSphere(radius: 0.005)],
-            filter: .init(group: PlaneManager.indexFingerCollisionGroup, mask: PlaneManager.modelCollisionGroup)
+            shapes: [.generateSphere(radius: 0.01)],
+            mode: .default,
+            filter: .init(group: PlaneManager.indexFingerCollisionGroup,
+                          mask: PlaneManager.modelCollisionGroup)
         ))
-        sphereEntity.components.set(PhysicsBodyComponent(massProperties: .default, material: .default, mode: .kinematic))
+        
+        sphereEntity.components.set(PhysicsBodyComponent(
+            mode: .kinematic
+        ))
+        
         return sphereEntity
     }
 }
 
-extension View {
-    func gestures<G1: Gesture, G2: Gesture, G3: Gesture>(
-        _ g1: G1, _ g2: G2, _ g3: G3
-    ) -> some View {
-        self
-            .gesture(g1)
-            .gesture(g2)
-            .gesture(g3)
-    }
-}
+//
+// extension View {
+//     func gestures<G1: Gesture, G2: Gesture, G3: Gesture>(
+//         _ g1: G1, _ g2: G2, _ g3: G3
+//     ) -> some View {
+//         self
+//             .gesture(g1)
+//             .gesture(g2)
+//             .gesture(g3)
+//     }
+// }

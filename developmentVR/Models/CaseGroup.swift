@@ -7,10 +7,12 @@
 
 import Foundation
 import RealityKit
+import ARKit
 
 struct CaseGroup: Identifiable, Hashable {
     let id = UUID()
     let usdzModelNames: [String]
+    let referenceObjectNames: [String] 
     let name: String
     let description: String
 }
@@ -23,7 +25,5 @@ struct LoadedCaseGroup: Identifiable {
     let usdzURLs: [URL?]
     
     //ar
-//    let referenceObject: ReferenceObject
+    var referenceObjects: [ARReferenceObject]
 }
-
-

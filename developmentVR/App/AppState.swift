@@ -35,6 +35,23 @@ class AppState : ObservableObject {
     @Published var spatialTrackingSession: SpatialTrackingSession?
     @Published var indexFingerTipEntity: ModelEntity?
     
+    // ARKit Session Management
+    private let arkitSession = ARKitSession()
+    private var objectTracking: ObjectTrackingProvider? = nil
+    @Published var worldSensingAuthorizationStatus = ARKitSession.AuthorizationStatus.notDetermined
+    
+    var allRequiredAuthorizationsAreGranted: Bool {
+        worldSensingAuthorizationStatus == .allowed
+    }
+    
+    var allRequiredProvidersAreSupported: Bool {
+        ObjectTrackingProvider.isSupported
+    }
+    
+    var canEnterImmersiveSpace: Bool {
+        allRequiredAuthorizationsAreGranted && allRequiredProvidersAreSupported
+    }
+    
     var maxillaOpacity: Float {
         return maxillaOpacityToggle ? 1.0 : 0.5
     }
@@ -84,6 +101,36 @@ class AppState : ObservableObject {
         }
     }
     
+    func requestWorldSensingAuthorization() async {
+        let authorizationResult = await arkitSession.requestAuthorization(for: [.worldSensing])
+        worldSensingAuthorizationStatus = authorizationResult[.worldSensing]!
+    }
+    
+    func queryWorldSensingAuthorization() async {
+        let authorizationResult = await arkitSession.queryAuthorization(for: [.worldSensing])
+        worldSensingAuthorizationStatus = authorizationResult[.worldSensing]!
+    }
+    
+    func startTracking() async -> ObjectTrackingProvider? {
+        guard let selectedCaseGroup else {
+            fatalError("No selected case group to start tracking")
+        }
+        
+        // Run a new provider every time when entering the immersive space.
+        let objectTracking = ObjectTrackingProvider(referenceObjects: selectedCaseGroup.referenceObjects)
+        
+        do {
+            try await arkitSession.run([objectTracking])
+        } catch {
+            print("Error: \(error)" )
+            return nil
+        }
+        
+        self.objectTracking = objectTracking
+        
+        return objectTracking
+    }
+    
     func startARSession(openWindow: OpenWindowAction, dismissImmersiveSpace: DismissImmersiveSpaceAction) async {
         await dismissImmersiveSpace()
         immersiveSpaceState = .closed
@@ -92,6 +139,7 @@ class AppState : ObservableObject {
     }
 
     func didLeaveImmersiveSpace() {
+        arkitSession.stop() // Stop ARKit session when leaving immersive space
         immersiveSpaceState = .closed
         resetCaseState()
     }

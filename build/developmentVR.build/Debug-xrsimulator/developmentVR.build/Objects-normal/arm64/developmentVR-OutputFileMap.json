@@ -1,0 +1,158 @@
+{
+  "" : {
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/developmentVR-master.dia",
+    "emit-module-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/developmentVR-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/developmentVR-master-emit-module.dia",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/developmentVR-master.swiftdeps"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR/App/AppState.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/AppState.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/AppState.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/AppState.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/AppState.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/AppState.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/AppState.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/AppState.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/AppState~partial.swiftmodule"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR/App/CaseGroupLoader.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroupLoader.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroupLoader.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroupLoader.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroupLoader.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroupLoader.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroupLoader.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroupLoader.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroupLoader~partial.swiftmodule"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR/App/Gesture.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Gesture.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Gesture.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Gesture.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Gesture.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Gesture.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Gesture.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Gesture.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Gesture~partial.swiftmodule"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR/App/ObjectAnchorVisualization.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectAnchorVisualization.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectAnchorVisualization.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectAnchorVisualization.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectAnchorVisualization.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectAnchorVisualization.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectAnchorVisualization.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectAnchorVisualization.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectAnchorVisualization~partial.swiftmodule"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR/App/PlaneManager.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/PlaneManager.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/PlaneManager.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/PlaneManager.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/PlaneManager.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/PlaneManager.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/PlaneManager.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/PlaneManager.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/PlaneManager~partial.swiftmodule"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR/App/RulerVisualization.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/RulerVisualization.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/RulerVisualization.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/RulerVisualization.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/RulerVisualization.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/RulerVisualization.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/RulerVisualization.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/RulerVisualization.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/RulerVisualization~partial.swiftmodule"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR/Data/DummyFragmentData.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/DummyFragmentData.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/DummyFragmentData.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/DummyFragmentData.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/DummyFragmentData.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/DummyFragmentData.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/DummyFragmentData.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/DummyFragmentData.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/DummyFragmentData~partial.swiftmodule"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR/Data/Sample.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Sample.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Sample.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Sample.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Sample.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Sample.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Sample.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Sample.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Sample~partial.swiftmodule"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR/Models/CaseGroup.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroup.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroup.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroup.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroup.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroup.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroup.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroup.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/CaseGroup~partial.swiftmodule"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR/Utils/Extensions.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Extensions.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Extensions.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Extensions.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Extensions.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Extensions.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Extensions.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Extensions.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/Extensions~partial.swiftmodule"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR/Views/HomeView.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/HomeView.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/HomeView.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/HomeView.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/HomeView.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/HomeView.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/HomeView.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/HomeView.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/HomeView~partial.swiftmodule"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR/Views/ImmersiveControlsView.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ImmersiveControlsView.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ImmersiveControlsView.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ImmersiveControlsView.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ImmersiveControlsView.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ImmersiveControlsView.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ImmersiveControlsView.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ImmersiveControlsView.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ImmersiveControlsView~partial.swiftmodule"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR/Views/ObjectTrackingView.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectTrackingView.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectTrackingView.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectTrackingView.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectTrackingView.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectTrackingView.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectTrackingView.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectTrackingView.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/ObjectTrackingView~partial.swiftmodule"
+  },
+  "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR/Views/OstoetomyPlanView.swift" : {
+    "const-values" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/OstoetomyPlanView.swiftconstvalues",
+    "dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/OstoetomyPlanView.d",
+    "diagnostics" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/OstoetomyPlanView.dia",
+    "index-unit-output-path" : "/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/OstoetomyPlanView.o",
+    "llvm-bc" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/OstoetomyPlanView.bc",
+    "object" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/OstoetomyPlanView.o",
+    "swift-dependencies" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/OstoetomyPlanView.swiftdeps",
+    "swiftmodule" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/build/developmentVR.build/Debug-xrsimulator/developmentVR.build/Objects-normal/arm64/OstoetomyPlanView~partial.swiftmodule"
+  }
+}

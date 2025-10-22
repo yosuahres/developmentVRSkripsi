@@ -1,0 +1,66 @@
+{
+  "buildCommand" : {
+    "command" : "prepareForIndexing",
+    "enableIndexBuildArena" : false,
+    "targets" : null
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "55d7a7ef591f80b7ae04563c2dc5be0f05d1ada3abf426a354f4937c38bad60d"
+    }
+  ],
+  "containerPath" : "/Users/hares/Desktop/SKRIPSI/developvisionOS/developmentVRSkripsi/developmentVR.xcodeproj",
+  "continueBuildingAfterErrors" : true,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "arm64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "platform" : "xrsimulator",
+      "sdk" : "xrsimulator2.5",
+      "sdkVariant" : "xrsimulator",
+      "supportedArchitectures" : [
+        "arm64"
+      ],
+      "targetArchitecture" : "arm64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "",
+      "buildProductsPath" : "",
+      "derivedDataPath" : "/Users/hares/Library/Developer/Xcode/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/hares/Library/Developer/Xcode/DerivedData/developmentVR-avojmugiihrpzzgrrrmmncbmymzu/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/hares/Library/Developer/Xcode/DerivedData/developmentVR-avojmugiihrpzzgrrrmmncbmymzu/Index.noindex/PrecompiledHeaders",
+      "pchPath" : ""
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "synthesized" : {
+        "table" : {
+          "ASSETCATALOG_FILTER_FOR_DEVICE_MODEL" : "RealityDevice14,1",
+          "ASSETCATALOG_FILTER_FOR_DEVICE_OS_VERSION" : "2.5",
+          "ASSETCATALOG_FILTER_FOR_THINNING_DEVICE_CONFIGURATION" : "RealityDevice14,1",
+          "BUILD_ACTIVE_RESOURCES_ONLY" : "YES",
+          "CLANG_COVERAGE_MAPPING" : "YES",
+          "CLANG_PROFILE_DATA_DIRECTORY" : "/Users/hares/Library/Developer/Xcode/DerivedData/developmentVR-avojmugiihrpzzgrrrmmncbmymzu/CodeCoverage/ProfileData",
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "YES",
+          "ONLY_ACTIVE_ARCH" : "YES",
+          "TARGET_DEVICE_IDENTIFIER" : "D2A0E3BA-BD26-4A81-91F4-9799CC986C5D",
+          "TARGET_DEVICE_MODEL" : "RealityDevice14,1",
+          "TARGET_DEVICE_OS_VERSION" : "2.5",
+          "TARGET_DEVICE_PLATFORM_NAME" : "xrsimulator"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "launch",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}

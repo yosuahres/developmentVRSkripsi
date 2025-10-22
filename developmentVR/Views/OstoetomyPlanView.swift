@@ -15,19 +15,21 @@ struct OstoetomyPlanView: View {
     @ObservedObject var appState: AppState
     @StateObject private var planeManager: PlaneManager
 
-    @State private var objectAnchorVisualizations: [ObjectAnchorVisualization] = []
     @State private var modelEntities: [ModelEntity?] = []
     @State private var spawnedPlanes: [Entity] = []
     @State private var mandibleAnchorWorldPosition: SIMD3<Float> = .zero
     @State private var initialTransform: Transform? = nil
     @State private var initialRotation: simd_quatf? = nil
     @State private var mandibleModel: ModelEntity?
-    @State private var maxillaModel: ModelEntity? 
+    @State private var maxillaModel: ModelEntity?
     @State private var activeModel: ModelEntity?
     private let realWorldScale: Float = 100.0
     
     @State var arKitSession = ARKitSession()
     @State var handTrackingProvider = HandTrackingProvider()
+
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
 
     init(appState: AppState) {
         self.appState = appState
@@ -55,42 +57,39 @@ struct OstoetomyPlanView: View {
                     let parentAnchor = AnchorEntity(world: spawnPosition)
                     rootEntity.addChild(parentAnchor)
                     
-                    objectAnchorVisualizations = []
                     modelEntities = []
                     
                     for (index, _) in loadedGroup.usdzEntities.enumerated() {
                         if let usdzURL = loadedGroup.usdzURLs[index] {
                             do {
-                                let visualization = try await ObjectAnchorVisualization(usdzURL: usdzURL, scale: 0.001) //convert to mm from m
-                                visualization.entity.transform.rotation = simd_quatf(angle: -Float.pi / 2, axis: [0, 1, 0])
+                                let model = try await Entity(contentsOf: usdzURL)
+                                model.scale = SIMD3<Float>(repeating: 0.001) // convert to mm from m
+                                model.transform.rotation = simd_quatf(angle: -Float.pi / 2, axis: [0, 1, 0])
 
-                                if let model = visualization.modelEntity {
-                                    model.components.set(InputTargetComponent())
-                                    model.generateCollisionShapes(recursive: true)
-                                    model.components.set(CollisionComponent(
-                                        shapes: model.collision?.shapes ?? [.generateBox(size: .zero)],
-                                        filter: .init(group: PlaneManager.modelCollisionGroup, mask: PlaneManager.indexFingerCollisionGroup)
-                                    ))
+                                model.components.set(InputTargetComponent())
+                                model.generateCollisionShapes(recursive: true)
+                                model.components.set(CollisionComponent(
+                                    shapes: model.collision?.shapes ?? [.generateBox(size: .zero)],
+                                    filter: .init(group: PlaneManager.modelCollisionGroup, mask: PlaneManager.indexFingerCollisionGroup)
+                                ))
 
-                                    if usdzURL.lastPathComponent.contains("Maxilla") {
-                                        model.isEnabled = appState.isMaxillaVisible
-                                        // set initial opacity for Maxilla
-                                        model.components.set(OpacityComponent(opacity: appState.maxillaOpacity))
-                                        maxillaModel = model // Assign Maxilla model
-                                    } else if usdzURL.lastPathComponent.contains("Mandibula") {
-                                        model.isEnabled = appState.isMandibleVisible
-                                        // set initial opacity for Mandible
-                                        model.components.set(OpacityComponent(opacity: appState.mandibleOpacity))
-                                        mandibleModel = model
-                                        planeManager.mandibleModel = model
-                                    }
+                                if usdzURL.lastPathComponent.contains("Maxilla") {
+                                    model.isEnabled = appState.isMaxillaVisible
+                                    // set initial opacity for Maxilla
+                                    model.components.set(OpacityComponent(opacity: appState.maxillaOpacity))
+                                    maxillaModel = (model as? ModelEntity) // Assign Maxilla model
+                                } else if usdzURL.lastPathComponent.contains("Mandibula") {
+                                    model.isEnabled = appState.isMandibleVisible
+                                    // set initial opacity for Mandible
+                                    model.components.set(OpacityComponent(opacity: appState.mandibleOpacity))
+                                    mandibleModel = (model as? ModelEntity)
+                                    planeManager.mandibleModel = (model as? ModelEntity)
                                 }
-
-                                parentAnchor.addChild(visualization.entity)
-                                objectAnchorVisualizations.append(visualization)
-                                modelEntities.append(visualization.modelEntity)
+                                
+                                parentAnchor.addChild(model)
+                                modelEntities.append((model as? ModelEntity))
                             } catch {
-                                print("Error loading or creating visualization for model \(index): \(error)")
+                                print("Error loading model \(index): \(error)")
                             }
                         }
                     }
@@ -191,6 +190,21 @@ struct OstoetomyPlanView: View {
                 } catch {
                     print("Error starting ARKitSession with HandTrackingProvider: \(error)")
                 }
+            }
+            
+            VStack {
+                Spacer()
+                Button("Start Tracking") {
+                    Task {
+                        await appState.startARSession(openWindow: openWindow, dismissImmersiveSpace: dismissImmersiveSpace)
+                    }
+                }
+                .font(.headline)
+                .padding()
+                .background(.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+                .padding(.bottom, 50)
             }
         }
     }

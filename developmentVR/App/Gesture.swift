@@ -36,7 +36,7 @@ struct Gestures {
     }
 
     static func rotationGesture(modelEntity: Binding<ModelEntity?>, initialRotation: Binding<simd_quatf?>) -> some Gesture {
-        RotateGesture3D(constrainedToAxis: .z, minimumAngleDelta: .degrees(1)) // yaw only
+        RotateGesture3D(minimumAngleDelta: .degrees(1)) // yaw only
             .targetedToAnyEntity()
             .onChanged { value in
                 if modelEntity.wrappedValue == nil {

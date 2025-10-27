@@ -26,9 +26,6 @@ struct OstoetomyPlanView: View {
     @State private var activeModel: ModelEntity?
     private let realWorldScale: Float = 100.0
     
-    @State var arKitSession = ARKitSession()
-    @State var handTrackingProvider = HandTrackingProvider()
-
     init(appState: AppState) {
         self.appState = appState
         let initialPlaneManager: PlaneManager = PlaneManager(appState: appState)
@@ -66,20 +63,9 @@ struct OstoetomyPlanView: View {
                 .gesture(
                     planeDragGesture
                 )
-                .task {
-                    do {
-                        try await arKitSession.run([handTrackingProvider])
-                        print("DEBUG: ARKitSession with HandTrackingProvider started.")
-                    } catch {
-                        print("Error starting ARKitSession with HandTrackingProvider: \(error)")
-                    }
-                }
         }
     }
 
-    // MARK: - Extracted Subviews & Gestures
-
-    /// The main RealityView content, extracted to help the compiler.
     private var realityViewContent: some View {
         RealityView { content in
             let rootEntity = Entity()
@@ -172,47 +158,48 @@ struct OstoetomyPlanView: View {
                 }
             }
 
-            let rightHandAnchor = AnchorEntity(.hand(.right, location: .indexFingerTip), trackingMode: .continuous)
-            let rightSphere = createIndexFingerSphere()
-            rightHandAnchor.addChild(rightSphere)
-            rootEntity.addChild(rightHandAnchor)
+            if let arKitSession = appState.arKitSession, let handTrackingProvider = appState.handTrackingProvider {
+                let rightHandAnchor = AnchorEntity(.hand(.right, location: .indexFingerTip), trackingMode: .continuous)
+                let rightSphere = createIndexFingerSphere()
+                rightHandAnchor.addChild(rightSphere)
+                rootEntity.addChild(rightHandAnchor)
 
-            let leftHandAnchor = AnchorEntity(.hand(.left, location: .indexFingerTip), trackingMode: .continuous)
-            let leftSphere = createIndexFingerSphere()
-            leftHandAnchor.addChild(leftSphere)
-            rootEntity.addChild(leftHandAnchor)
+                let leftHandAnchor = AnchorEntity(.hand(.left, location: .indexFingerTip), trackingMode: .continuous)
+                let leftSphere = createIndexFingerSphere()
+                leftHandAnchor.addChild(leftSphere)
+                rootEntity.addChild(leftHandAnchor)
 
-            planeManager.rightIndexFingerTipEntity = rightSphere
-            planeManager.leftIndexFingerTipEntity = leftSphere
+                planeManager.rightIndexFingerTipEntity = rightSphere
+                planeManager.leftIndexFingerTipEntity = leftSphere
 
-            // DEBUGGGG
-            Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-                Task { @MainActor in
-                    if let rightSphere = planeManager.rightIndexFingerTipEntity {
-                        print("DEBUG: Right hand sphere position: \(rightSphere.position(relativeTo: nil))")
-                    }
-                    if let leftSphere = planeManager.leftIndexFingerTipEntity {
-                        print("DEBUG: Left hand sphere position: \(leftSphere.position(relativeTo: nil))")
+                // DEBUGGGG
+                Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+                    Task { @MainActor in
+                        if let rightSphere = planeManager.rightIndexFingerTipEntity {
+                            print("DEBUG: Right hand sphere position: \(rightSphere.position(relativeTo: nil))")
+                        }
+                        if let leftSphere = planeManager.leftIndexFingerTipEntity {
+                            print("DEBUG: Left hand sphere position: \(leftSphere.position(relativeTo: nil))")
+                        }
                     }
                 }
-            }
- 
-            if let scene = rootEntity.scene {
-                _ = scene.subscribe(to: CollisionEvents.Began.self, on: rightHandAnchor) { event in
-                    Task { @MainActor in
-                        self.planeManager.handleIndexFingerCollision(event: event, rootEntity: rootEntity, modelEntities: self.modelEntities)
+     
+                if let scene = rootEntity.scene {
+                    _ = scene.subscribe(to: CollisionEvents.Began.self, on: rightSphere) { event in
+                        Task { @MainActor in
+                            self.planeManager.handleIndexFingerCollision(event: event, rootEntity: rootEntity, modelEntities: self.modelEntities)
+                        }
                     }
-                }
-                _ = scene.subscribe(to: CollisionEvents.Began.self, on: leftHandAnchor) { event in
-                    Task { @MainActor in
-                        self.planeManager.handleIndexFingerCollision(event: event, rootEntity: rootEntity, modelEntities: self.modelEntities)
+                    _ = scene.subscribe(to: CollisionEvents.Began.self, on: leftSphere) { event in
+                        Task { @MainActor in
+                            self.planeManager.handleIndexFingerCollision(event: event, rootEntity: rootEntity, modelEntities: self.modelEntities)
+                        }
                     }
                 }
             }
         }
     }
 
-    /// The drag gesture for the cutting planes, extracted to help the compiler.
     private var planeDragGesture: some Gesture {
         DragGesture()
             .targetedToAnyEntity()
@@ -244,15 +231,3 @@ struct OstoetomyPlanView: View {
         return sphereEntity
     }
 }
-
-//
-// extension View {
-//     func gestures<G1: Gesture, G2: Gesture, G3: Gesture>(
-//         _ g1: G1, _ g2: G2, _ g3: G3
-//     ) -> some View {
-//         self
-//             .gesture(g1)
-//             .gesture(g2)
-//             .gesture(g3)
-//     }
-// }

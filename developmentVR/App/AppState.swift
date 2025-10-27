@@ -35,6 +35,9 @@ class AppState : ObservableObject {
     @Published var spatialTrackingSession: SpatialTrackingSession?
     @Published var indexFingerTipEntity: ModelEntity?
     
+    @Published var arKitSession: ARKitSession?
+    @Published var handTrackingProvider: HandTrackingProvider?
+    
     var maxillaOpacity: Float {
         return maxillaOpacityToggle ? 1.0 : 0.5
     }
@@ -94,6 +97,7 @@ class AppState : ObservableObject {
     func didLeaveImmersiveSpace() {
         immersiveSpaceState = .closed
         resetCaseState()
+        stopARKitSession()
     }
     
     func resetCaseState() {
@@ -105,6 +109,32 @@ class AppState : ObservableObject {
         maxillaOpacityToggle = true
         mandibleOpacityToggle = true
         selectedCaseGroup = nil
+        arKitSession = nil
+        handTrackingProvider = nil
+    }
+    
+    func startARKitSession() async {
+        arKitSession = ARKitSession()
+        handTrackingProvider = HandTrackingProvider()
+        
+        guard let arKitSession = arKitSession, let handTrackingProvider = handTrackingProvider else {
+            print("Error: ARKitSession or HandTrackingProvider not initialized.")
+            return
+        }
+        
+        do {
+            try await arKitSession.run([handTrackingProvider])
+            print("DEBUG: ARKitSession with HandTrackingProvider started from AppState.")
+        } catch {
+            print("Error starting ARKitSession with HandTrackingProvider from AppState: \(error)")
+        }
+    }
+    
+    func stopARKitSession() {
+        arKitSession?.stop()
+        arKitSession = nil
+        handTrackingProvider = nil
+        print("DEBUG: ARKitSession stopped and invalidated from AppState.")
     }
     
     // toggle on immersive control func
@@ -167,10 +197,12 @@ struct developmentVRApp: App {
                 .onAppear {
                     appState.immersiveSpaceState = .open
                     appState.isControlWindowOpened = true
+                    Task { await appState.startARKitSession() }
                 }
                 .onDisappear {
                     appState.immersiveSpaceState = .closed
                     appState.isControlWindowOpened = false
+                    appState.stopARKitSession()
                 }
         }
         .immersionStyle(selection: .constant(.full), in: .full)

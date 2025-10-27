@@ -20,7 +20,6 @@ class PlaneManager: ObservableObject {
     var rightIndexFingerTipEntity: ModelEntity?
     var leftIndexFingerTipEntity: ModelEntity?
 
-    // add collision to model sphere and model mandible
     static let indexFingerCollisionGroup = CollisionGroup(rawValue: 1 << 0)
     static let modelCollisionGroup = CollisionGroup(rawValue: 1 << 1)
 
@@ -32,12 +31,10 @@ class PlaneManager: ObservableObject {
         self.leftIndexFingerTipEntity = leftIndexFingerTipEntity
     }
 
-    // MODIFIED: This function now uses the event's contact manifold
     func handleIndexFingerCollision(event: CollisionEvents.Began, rootEntity: Entity, modelEntities: [ModelEntity?]) {
         guard let entityA = event.entityA as? ModelEntity,
               let entityB = event.entityB as? ModelEntity else { return }
 
-        // Identify which is the finger and which is the model
         let (indexFingerSphere, collidedModel): (ModelEntity, ModelEntity)
         if entityA == rightIndexFingerTipEntity || entityA == leftIndexFingerTipEntity {
             indexFingerSphere = entityA

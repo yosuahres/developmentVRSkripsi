@@ -173,16 +173,16 @@ struct OstoetomyPlanView: View {
                 planeManager.leftIndexFingerTipEntity = leftSphere
 
                 // DEBUGGGG
-                Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-                    Task { @MainActor in
-                        if let rightSphere = planeManager.rightIndexFingerTipEntity {
-                            print("DEBUG: Right hand sphere position: \(rightSphere.position(relativeTo: nil))")
-                        }
-                        if let leftSphere = planeManager.leftIndexFingerTipEntity {
-                            print("DEBUG: Left hand sphere position: \(leftSphere.position(relativeTo: nil))")
-                        }
-                    }
-                }
+//                Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+//                    Task { @MainActor in
+//                        if let rightSphere = planeManager.rightIndexFingerTipEntity {
+//                            print("DEBUG: Right hand sphere position: \(rightSphere.position(relativeTo: nil))")
+//                        }
+//                        if let leftSphere = planeManager.leftIndexFingerTipEntity {
+//                            print("DEBUG: Left hand sphere position: \(leftSphere.position(relativeTo: nil))")
+//                        }
+//                    }
+//                }
      
                 if let scene = rootEntity.scene {
                     _ = scene.subscribe(to: CollisionEvents.Began.self, on: rightSphere) { event in

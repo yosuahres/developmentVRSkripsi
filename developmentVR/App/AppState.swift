@@ -113,6 +113,7 @@ class AppState : ObservableObject {
         handTrackingProvider = nil
     }
     
+    // for handtracking provider session
     func startARKitSession() async {
         arKitSession = ARKitSession()
         handTrackingProvider = HandTrackingProvider()

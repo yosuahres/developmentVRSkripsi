@@ -82,7 +82,7 @@ struct OstoetomyPlanView: View {
                 let spawnHeight: Float = 0.0
                 let spawnPosition = initialUserTransform.translation + (userForward * spawnDistance) + SIMD3<Float>(x: 0, y: spawnHeight, z: 0)
                 
-                let parentAnchor = AnchorEntity(world: spawnPosition)
+                let parentAnchor = AnchorEntity(world: .zero)
                 rootEntity.addChild(parentAnchor)
                 
                 objectAnchorVisualizations = []
@@ -95,29 +95,45 @@ struct OstoetomyPlanView: View {
                             visualization.entity.transform.rotation = simd_quatf(angle: -Float.pi / 2, axis: [0, 1, 0])
 
                             if let model = visualization.modelEntity {
-                                model.components.set(InputTargetComponent())
                                 
-                                // MANDIBLE COLLIDER
-                                model.generateCollisionShapes(recursive: true)
-                                let generatedShapes = model.components[CollisionComponent.self]?.shapes ?? []
-                                model.components.set(CollisionComponent(
-                                    shapes: generatedShapes,
-                                    mode: .default,
-                                    filter: .init(group: PlaneManager.modelCollisionGroup, mask: PlaneManager.indexFingerCollisionGroup)
-                                ))
-                                
-                                model.components.set(PhysicsBodyComponent(
-                                    mode: .static
-                                ))
-
                                 if usdzURL.lastPathComponent.contains("Maxilla") {
+                                    //simple collision set maxilla
+                                    model.generateCollisionShapes(recursive: true)
+                                    model.components.set(PhysicsBodyComponent(mode:.static))
+                                    
+                                    if var collision = model.components[CollisionComponent.self] {
+                                        collision.filter = .init(group: PlaneManager.modelCollisionGroup, mask: PlaneManager.indexFingerCollisionGroup)
+                                        model.components.set(collision)
+                                    }
+                                    
+                                    //opacity set maxilla
                                     model.isEnabled = appState.isMaxillaVisible
-                                    // set initial opacity for Maxilla
                                     model.components.set(OpacityComponent(opacity: appState.maxillaOpacity))
-                                    maxillaModel = model 
+                                    maxillaModel = model
+                                    
                                 } else if usdzURL.lastPathComponent.contains("Mandibula") {
+                                    if let modelMesh = model.model?.mesh {
+                                        do{
+                                            print("precise shape good")
+                                            let preciseShape = try await ShapeResource.generateStaticMesh(from: modelMesh)
+                                            
+                                            //collision set mandible
+                                            model.components.set(CollisionComponent(
+                                                shapes: [preciseShape],
+                                                mode: .default,
+                                                filter: .init(group: PlaneManager.modelCollisionGroup, mask: PlaneManager.indexFingerCollisionGroup)
+                                            ))
+                                            
+                                            model.components.set(PhysicsBodyComponent(mode:.static))
+                                        } catch {
+                                            model.generateCollisionShapes(recursive: true)
+                                        }
+                                    } else{
+                                        model.generateCollisionShapes(recursive: true)
+                                    }
+                                    
+                                    //opacity set mandible
                                     model.isEnabled = appState.isMandibleVisible
-                                    // set initial opacity for Mandible
                                     model.components.set(OpacityComponent(opacity: appState.mandibleOpacity))
                                     mandibleModel = model
                                     planeManager.mandibleModel = model
@@ -171,18 +187,6 @@ struct OstoetomyPlanView: View {
 
                 planeManager.rightIndexFingerTipEntity = rightSphere
                 planeManager.leftIndexFingerTipEntity = leftSphere
-
-                // DEBUGGGG
-//                Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-//                    Task { @MainActor in
-//                        if let rightSphere = planeManager.rightIndexFingerTipEntity {
-//                            print("DEBUG: Right hand sphere position: \(rightSphere.position(relativeTo: nil))")
-//                        }
-//                        if let leftSphere = planeManager.leftIndexFingerTipEntity {
-//                            print("DEBUG: Left hand sphere position: \(leftSphere.position(relativeTo: nil))")
-//                        }
-//                    }
-//                }
      
                 if let scene = rootEntity.scene {
                     _ = scene.subscribe(to: CollisionEvents.Began.self, on: rightSphere) { event in
@@ -217,6 +221,7 @@ struct OstoetomyPlanView: View {
         let sphereMaterial = SimpleMaterial(color: .cyan, isMetallic: false)
         let sphereEntity = ModelEntity(mesh: sphereMesh, materials: [sphereMaterial])
 
+        //collision set sphere on hand
         sphereEntity.components.set(CollisionComponent(
             shapes: [.generateSphere(radius: 0.01)],
             mode: .default,
